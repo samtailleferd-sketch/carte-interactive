@@ -62,7 +62,7 @@ export default function GymPanel({ salle, onClose }) {
       </div>
 
       <p className="gym-panel__disclaimer">
-        Données fictives — prototype de démonstration FNSL Sud Est.
+        Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.
       </p>
     </div>
   );
