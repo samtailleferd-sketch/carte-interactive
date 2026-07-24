@@ -1,0 +1,303 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  width: 100%;
+}
+
+.beta-banner {
+  background: #3a2410;
+  color: #ffb703;
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255, 183, 3, 0.3);
+}
+
+.app__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  z-index: 20;
+}
+
+.app__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-shrink: 0;
+  font-family: var(--heading);
+}
+
+.app__brand-mark {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.app__brand-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.app__search {
+  flex: 1;
+  max-width: 420px;
+}
+
+.app__search input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.app__search input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.app__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  /* Isolates Leaflet's internal panes (z-index up to 700) into their own
+     stacking context so the UI overlays below can sit above the map. */
+  position: relative;
+  z-index: 0;
+}
+
+.app__hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-muted);
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* Marqueurs */
+.gym-marker-icon {
+  background: transparent;
+  border: none;
+}
+
+.gym-marker {
+  display: block;
+  width: var(--marker-size);
+  height: var(--marker-size);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--marker-color);
+  border: 2px solid rgba(11, 12, 16, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: width 0.15s ease, height 0.15s ease;
+}
+
+/* Fiche salle */
+.gym-panel {
+  position: absolute;
+  z-index: 30;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 20px;
+  overflow-y: auto;
+
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.gym-panel__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gym-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: 30px;
+  margin-bottom: 4px;
+}
+
+.gym-panel__header h2 {
+  font-size: 24px;
+}
+
+.gym-panel__ville {
+  color: var(--accent-strong);
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.gym-panel__adresse {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.gym-panel__description {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gym-panel__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 77, 46, 0.12);
+  border: 1px solid rgba(255, 77, 46, 0.35);
+  color: var(--accent-strong);
+}
+
+.gym-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.btn {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14090a;
+}
+
+.btn--ghost {
+  background: transparent;
+}
+
+.gym-panel__disclaimer {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.badge--partner {
+  background: rgba(255, 183, 3, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(255, 183, 3, 0.4);
+}
+
+.badge--test {
+  background: rgba(255, 77, 46, 0.15);
+  color: var(--accent-strong);
+  border: 1px solid rgba(255, 77, 46, 0.4);
+}
+
+.badge--unverified {
+  background: rgba(154, 155, 166, 0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(154, 155, 166, 0.4);
+}
+
+.badge--verified {
+  background: rgba(76, 201, 149, 0.15);
+  color: #4cc995;
+  border: 1px solid rgba(76, 201, 149, 0.4);
+}
+
+.gym-panel__niveau {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Responsive mobile : fiche en bottom sheet */
+@media (max-width: 680px) {
+  .app__header {
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .app__brand-mark {
+    font-size: 22px;
+  }
+
+  .gym-panel {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 70%;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .app__hint {
+    bottom: 12px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap");
+
+:root {
+  --bg: #0b0c10;
+  --bg-elevated: #15161d;
+  --border: #262832;
+  --text: #f4f4f6;
+  --text-muted: #9a9ba6;
+  --accent: #ff4d2e;
+  --accent-strong: #ff6a4d;
+  --gold: #ffb703;
+
+  --sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Barlow Condensed", "Inter", system-ui, sans-serif;
+
+  color-scheme: dark;
+  font: 16px/1.5 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
