@@ -2,7 +2,13 @@ import Papa from "papaparse";
 import { SHEET_CSV_URL } from "../config";
 import localSalles from "./salles.json";
 
-const TRUE_VALUES = new Set(["true", "vrai", "oui", "1", "yes"]);
+const FALSE_VALUES = new Set(["false", "faux", "non", "0", "no"]);
+
+function parseVisible(raw) {
+  const trimmed = String(raw ?? "").trim().toLowerCase();
+  if (!trimmed) return true;
+  return !FALSE_VALUES.has(trimmed);
+}
 
 function splitList(value) {
   if (!value) return [];
@@ -31,7 +37,7 @@ function normalize(row) {
     statut: row.statut || "À vérifier",
     niveau_pertinence: row.niveau_pertinence || "",
     description: row.remarques_publiques || "",
-    visible: row.visible === undefined ? true : TRUE_VALUES.has(String(row.visible).trim().toLowerCase()),
+    visible: parseVisible(row.visible),
   };
 }
 
