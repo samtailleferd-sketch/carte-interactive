@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 import { statusColor } from "../statusStyle";
@@ -25,13 +25,26 @@ function FlyToSelection({ salle }) {
   return null;
 }
 
-export default function GymMap({ salles, selectedId, onSelect, showZones }) {
-  const center = [44.6, 5.6]; // centre approximatif Sud Est
+function ViewTracker({ onViewChange }) {
+  useMapEvents({
+    moveend(e) {
+      if (!onViewChange) return;
+      const map = e.target;
+      const center = map.getCenter();
+      onViewChange({ center: [center.lat, center.lng], zoom: map.getZoom() });
+    },
+  });
+  return null;
+}
+
+export default function GymMap({ salles, selectedId, onSelect, showZones, initialView, onViewChange }) {
+  const center = initialView?.center || [44.6, 5.6];
+  const zoom = initialView?.zoom || 7;
 
   const selectedSalle = salles.find((s) => s.id === selectedId);
 
   return (
-    <MapContainer center={center} zoom={7} className="map" scrollWheelZoom>
+    <MapContainer center={center} zoom={zoom} className="map" scrollWheelZoom>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -46,6 +59,7 @@ export default function GymMap({ salles, selectedId, onSelect, showZones }) {
         />
       ))}
       <FlyToSelection salle={selectedSalle} />
+      <ViewTracker onViewChange={onViewChange} />
     </MapContainer>
   );
 }

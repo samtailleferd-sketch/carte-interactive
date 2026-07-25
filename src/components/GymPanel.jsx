@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
 
 function isRealLink(url) {
@@ -46,7 +47,7 @@ export default function GymPanel({ salle, onClose }) {
         </a>
         {isRealLink(salle.site) && (
           <a className="btn" href={salle.site} target="_blank" rel="noopener noreferrer">
-            Voir la salle
+            Site web
           </a>
         )}
         {isRealLink(salle.instagram) && (
@@ -60,6 +61,10 @@ export default function GymPanel({ salle, onClose }) {
           </a>
         )}
       </div>
+
+      <Link to={`/salles/${salle.slug}`} className="btn btn--full gym-panel__detail-link">
+        Voir la fiche complète →
+      </Link>
 
       <p className="gym-panel__disclaimer">
         Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.

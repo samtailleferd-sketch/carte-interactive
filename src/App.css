@@ -280,6 +280,23 @@
   background: transparent;
 }
 
+.btn--full {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gym-panel__detail-link {
+  margin-top: 12px;
+  background: var(--bg-elevated);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
+}
+
+.gym-panel__detail-link:hover {
+  background: rgba(255, 77, 46, 0.1);
+}
+
 .gym-panel__disclaimer {
   margin-top: 20px;
   font-size: 11px;

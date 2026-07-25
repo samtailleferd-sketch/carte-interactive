@@ -1,6 +1,7 @@
 import Papa from "papaparse";
 import { SHEET_CSV_URL } from "../config";
 import localSalles from "./salles.json";
+import { slugify } from "../utils/slug";
 
 const FALSE_VALUES = new Set(["false", "faux", "non", "0", "no"]);
 
@@ -19,8 +20,13 @@ function splitList(value) {
 }
 
 function normalize(row) {
+  const id = row.id || row.nom;
+  const equipementsStreetlifting = splitList(row.equipements_streetlifting);
+  const equipementsForce = splitList(row.equipements_force);
+
   return {
-    id: row.id || row.nom,
+    id,
+    slug: slugify(id),
     nom: row.nom || "",
     ville: row.ville || "",
     adresse: row.adresse || "",
@@ -30,13 +36,24 @@ function normalize(row) {
     instagram: row.instagram || "",
     site: row.site_web || "",
     reservation: row.reservation_url || "",
-    equipements: [
-      ...splitList(row.equipements_streetlifting),
-      ...splitList(row.equipements_force),
-    ],
+    equipements: [...equipementsStreetlifting, ...equipementsForce],
+    equipementsStreetlifting,
+    equipementsForce,
     statut: row.statut || "À vérifier",
     niveau_pertinence: row.niveau_pertinence || "",
     description: row.remarques_publiques || "",
+    descriptionLongue: row.description_longue || "",
+    photoPrincipale: row.photo_principale || "",
+    photos: splitList(row.photos),
+    horaires: row.horaires || "",
+    telephone: row.telephone || "",
+    email: row.email || "",
+    conditionsAcces: row.conditions_acces || "",
+    tarifs: row.tarifs || "",
+    coachingDisponible: row.coaching_disponible || "",
+    communaute: row.communaute || "",
+    dateDerniereVerification: row.date_derniere_verification || "",
+    sourceInformation: row.source_information || "",
     visible: parseVisible(row.visible),
   };
 }
