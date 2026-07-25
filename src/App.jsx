@@ -4,6 +4,7 @@ import "./App.css";
 import GymMap from "./components/GymMap";
 import GymPanel from "./components/GymPanel";
 import BetaBanner from "./components/BetaBanner";
+import ZonesLegend from "./components/ZonesLegend";
 import { fetchSalles } from "./data/fetchSalles";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [showZones, setShowZones] = useState(true);
 
   useEffect(() => {
     fetchSalles()
@@ -45,10 +47,20 @@ function App() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+        <label className="app__zones-toggle">
+          <input
+            type="checkbox"
+            checked={showZones}
+            onChange={(e) => setShowZones(e.target.checked)}
+          />
+          Zones FNSL
+        </label>
       </header>
 
       <main className="app__body">
-        <GymMap salles={filtered} selectedId={selectedId} onSelect={setSelectedId} />
+        <GymMap salles={filtered} selectedId={selectedId} onSelect={setSelectedId} showZones={showZones} />
+
+        {showZones && !selectedSalle && <ZonesLegend />}
 
         {selectedSalle && (
           <GymPanel salle={selectedSalle} onClose={() => setSelectedId(null)} />

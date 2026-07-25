@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 import { statusColor } from "../statusStyle";
+import ZonesLayer from "./ZonesLayer";
 
 function markerIcon(statut, active) {
   const color = statusColor(statut);
@@ -24,7 +25,7 @@ function FlyToSelection({ salle }) {
   return null;
 }
 
-export default function GymMap({ salles, selectedId, onSelect }) {
+export default function GymMap({ salles, selectedId, onSelect, showZones }) {
   const center = [44.6, 5.6]; // centre approximatif Sud Est
 
   const selectedSalle = salles.find((s) => s.id === selectedId);
@@ -35,6 +36,7 @@ export default function GymMap({ salles, selectedId, onSelect }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
+      {showZones && <ZonesLayer />}
       {salles.map((salle) => (
         <Marker
           key={salle.id}

@@ -60,6 +60,62 @@
   font: inherit;
 }
 
+.app__zones-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.zones-legend {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 15;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.9;
+  max-width: 190px;
+}
+
+.zones-legend__title {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+}
+
+.zones-legend__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zones-legend__row--muted {
+  color: var(--text-muted);
+}
+
+.zones-legend__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.zones-legend__tag {
+  font-size: 10px;
+  color: var(--gold);
+  margin-left: auto;
+}
+
 .app__search input:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
@@ -299,5 +355,13 @@
     bottom: 12px;
     font-size: 12px;
     padding: 6px 12px;
+  }
+
+  .app__zones-toggle {
+    font-size: 12px;
+  }
+
+  .zones-legend {
+    display: none;
   }
 }
