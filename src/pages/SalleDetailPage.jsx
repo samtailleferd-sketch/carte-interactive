@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
+import GymImage from "../components/GymImage";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -69,11 +70,13 @@ export default function SalleDetailPage({ salles, loading }) {
       </header>
 
       <div className="detail-hero">
-        {salle.photoPrincipale ? (
-          <img className="detail-hero__image" src={salle.photoPrincipale} alt={salle.nom} />
-        ) : (
-          <div className="detail-hero__placeholder" aria-hidden="true" />
-        )}
+        <GymImage
+          src={salle.photoPrincipale}
+          alt={salle.imageAlt}
+          type={salle.imageType}
+          nom={salle.nom}
+          variant="hero"
+        />
         <div className="detail-hero__overlay">
           <div className="detail-hero__badges">
             <StatusBadge statut={salle.statut} />

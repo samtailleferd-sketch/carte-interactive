@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
+import GymImage from "./GymImage";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -16,6 +17,14 @@ export default function GymPanel({ salle, onClose }) {
       <button className="gym-panel__close" onClick={onClose} aria-label="Fermer">
         ×
       </button>
+
+      <GymImage
+        src={salle.photoPrincipale}
+        alt={salle.imageAlt}
+        type={salle.imageType}
+        nom={salle.nom}
+        variant="preview"
+      />
 
       <div className="gym-panel__header">
         <h2>{salle.nom}</h2>

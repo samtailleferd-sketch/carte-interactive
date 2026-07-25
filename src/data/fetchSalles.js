@@ -44,6 +44,8 @@ function normalize(row) {
     description: row.remarques_publiques || "",
     descriptionLongue: row.description_longue || "",
     photoPrincipale: row.photo_principale || "",
+    imageAlt: row.image_alt || "",
+    imageType: row.image_type || "photo",
     photos: splitList(row.photos),
     horaires: row.horaires || "",
     telephone: row.telephone || "",
