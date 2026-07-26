@@ -45,21 +45,6 @@
   text-transform: uppercase;
 }
 
-.app__search {
-  flex: 1;
-  max-width: 420px;
-}
-
-.app__search input {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-}
-
 .app__zones-toggle {
   display: flex;
   align-items: center;
@@ -69,6 +54,7 @@
   white-space: nowrap;
   cursor: pointer;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .zones-legend {
@@ -116,15 +102,17 @@
   margin-left: auto;
 }
 
-.app__search input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
-}
-
 .app__body {
-  position: relative;
+  display: flex;
   flex: 1;
   min-height: 0;
+}
+
+.map-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
 }
 
 .map {
@@ -132,7 +120,8 @@
   height: 100%;
   background: var(--bg);
   /* Isolates Leaflet's internal panes (z-index up to 700) into their own
-     stacking context so the UI overlays below can sit above the map. */
+     stacking context so the UI overlays in .map-area (fiche, légende, hint)
+     can sit above the map without competing with Leaflet's internal z-index. */
   position: relative;
   z-index: 0;
 }
@@ -150,6 +139,23 @@
   color: var(--text-muted);
   z-index: 10;
   white-space: nowrap;
+}
+
+.app__hint--empty {
+  white-space: normal;
+  text-align: center;
+  max-width: 280px;
+}
+
+.app__hint-reset {
+  background: none;
+  border: none;
+  color: var(--accent-strong);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
 }
 
 /* Marqueurs */

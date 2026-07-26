@@ -1,22 +1,28 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GymMap from "../components/GymMap";
 import GymPanel from "../components/GymPanel";
 import BetaBanner from "../components/BetaBanner";
 import ZonesLegend from "../components/ZonesLegend";
+import FilterSidebar from "../components/FilterSidebar";
+import MobileFilterDrawer from "../components/MobileFilterDrawer";
+import { emptyFilters, matchesFilters } from "../utils/filters";
 
 export default function MapPage({ salles, loading, selectedId, onSelect, mapView, onMapViewChange }) {
-  const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState(emptyFilters());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showZones, setShowZones] = useState(true);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return salles;
-    return salles.filter(
-      (s) => s.ville.toLowerCase().includes(q) || s.nom.toLowerCase().includes(q)
-    );
-  }, [query, salles]);
+  const filtered = useMemo(() => salles.filter((s) => matchesFilters(s, filters)), [salles, filters]);
 
   const selectedSalle = salles.find((s) => s.id === selectedId) || null;
+
+  // Si la salle sélectionnée sort du résultat filtré, on ferme la fiche
+  // plutôt que de laisser une fiche ouverte pour une salle devenue invisible.
+  useEffect(() => {
+    if (selectedId && !filtered.some((s) => s.id === selectedId)) {
+      onSelect(null);
+    }
+  }, [filtered, selectedId, onSelect]);
 
   return (
     <div className="app">
@@ -26,14 +32,6 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
         <div className="app__brand">
           <span className="app__brand-mark">FNSL</span>
           <span className="app__brand-sub">Sud Est</span>
-        </div>
-        <div className="app__search">
-          <input
-            type="text"
-            placeholder="Chercher une ville ou une salle..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
         </div>
         <label className="app__zones-toggle">
           <input
@@ -46,27 +44,53 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
       </header>
 
       <main className="app__body">
-        <GymMap
-          salles={filtered}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          showZones={showZones}
-          initialView={mapView}
-          onViewChange={onMapViewChange}
+        <FilterSidebar
+          salles={salles}
+          filters={filters}
+          onFiltersChange={setFilters}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
         />
 
-        {showZones && !selectedSalle && <ZonesLegend />}
+        <div className="map-area">
+          <GymMap
+            salles={filtered}
+            selectedId={selectedId}
+            onSelect={onSelect}
+            showZones={showZones}
+            initialView={mapView}
+            onViewChange={onMapViewChange}
+          />
 
-        {selectedSalle && <GymPanel salle={selectedSalle} onClose={() => onSelect(null)} />}
+          {showZones && !selectedSalle && <ZonesLegend />}
 
-        {!selectedSalle && !loading && (
-          <p className="app__hint">
-            {filtered.length} salle{filtered.length > 1 ? "s" : ""} affichée
-            {filtered.length > 1 ? "s" : ""} — cliquez sur un point de la carte
-          </p>
-        )}
+          {selectedSalle && <GymPanel salle={selectedSalle} onClose={() => onSelect(null)} />}
 
-        {loading && <p className="app__hint">Chargement des salles...</p>}
+          <MobileFilterDrawer
+            salles={salles}
+            filters={filters}
+            onFiltersChange={setFilters}
+            resultCount={filtered.length}
+          />
+
+          {!selectedSalle && !loading && filtered.length > 0 && (
+            <p className="app__hint">
+              {filtered.length} salle{filtered.length > 1 ? "s" : ""} affichée
+              {filtered.length > 1 ? "s" : ""} — cliquez sur un point de la carte
+            </p>
+          )}
+
+          {!selectedSalle && !loading && filtered.length === 0 && (
+            <p className="app__hint app__hint--empty">
+              Aucune salle ne correspond à ces filtres.{" "}
+              <button className="app__hint-reset" onClick={() => setFilters(emptyFilters())}>
+                Réinitialiser les filtres
+              </button>
+            </p>
+          )}
+
+          {loading && <p className="app__hint">Chargement des salles...</p>}
+        </div>
       </main>
     </div>
   );

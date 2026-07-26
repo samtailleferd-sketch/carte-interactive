@@ -2,6 +2,7 @@ import Papa from "papaparse";
 import { SHEET_CSV_URL } from "../config";
 import localSalles from "./salles.json";
 import { slugify } from "../utils/slug";
+import { chainFor } from "./chains";
 
 const FALSE_VALUES = new Set(["false", "faux", "non", "0", "no"]);
 
@@ -19,21 +20,12 @@ function splitList(value) {
     .filter(Boolean);
 }
 
-// Logo par défaut appliqué quand une salle appartient à une chaîne connue
-// et qu'aucune photo_principale n'a été renseignée dans le Sheet - évite
-// de devoir remplir la même image sur chaque salle d'une même enseigne.
-const BRAND_LOGOS = [{ match: /fitness park/i, src: "/images/fitnesspark-logo.svg", alt: "Fitness Park" }];
-
-function brandLogoFor(typeSalle, nom) {
-  const haystack = `${typeSalle} ${nom}`;
-  return BRAND_LOGOS.find((brand) => brand.match.test(haystack)) || null;
-}
-
 function normalize(row) {
   const id = row.id || row.nom;
   const equipementsStreetlifting = splitList(row.equipements_streetlifting);
   const equipementsForce = splitList(row.equipements_force);
-  const brandLogo = !row.photo_principale && brandLogoFor(row.type_salle, row.nom);
+  const chain = chainFor(row.type_salle, row.nom);
+  const brandLogo = !row.photo_principale && chain?.logo;
   const photoPrincipale = row.photo_principale || brandLogo?.src || "";
   // Les photos de profil Instagram des clubs de chaînes (Fitness Park, On Air...)
   // sont des logos carrés (nom du club sur fond uni), pas des photos de la salle :
@@ -52,6 +44,8 @@ function normalize(row) {
     instagram: row.instagram || "",
     site: row.site_web || "",
     reservation: row.reservation_url || "",
+    chaine: row.chaine || chain?.label || "Indépendante",
+    type_salle: row.type_salle || "",
     equipements: [...equipementsStreetlifting, ...equipementsForce],
     equipementsStreetlifting,
     equipementsForce,

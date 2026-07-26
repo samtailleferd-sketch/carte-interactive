@@ -37,6 +37,20 @@ function ViewTracker({ onViewChange }) {
   return null;
 }
 
+// Leaflet ne détecte pas automatiquement un changement de taille de son
+// conteneur (ex. repli/dépli de la sidebar de filtres) — seul un resize de
+// la fenêtre déclenche un recalcul. On observe donc le conteneur directement.
+function MapResizeObserver() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+  return null;
+}
+
 export default function GymMap({ salles, selectedId, onSelect, showZones, initialView, onViewChange }) {
   const center = initialView?.center || [44.6, 5.6];
   const zoom = initialView?.zoom || 7;
@@ -60,6 +74,7 @@ export default function GymMap({ salles, selectedId, onSelect, showZones, initia
       ))}
       <FlyToSelection salle={selectedSalle} />
       <ViewTracker onViewChange={onViewChange} />
+      <MapResizeObserver />
     </MapContainer>
   );
 }

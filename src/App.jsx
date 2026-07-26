@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
+import "./components/FilterSidebar.css";
 import "./pages/SalleDetailPage.css";
 import MapPage from "./pages/MapPage";
 import SalleDetailPage from "./pages/SalleDetailPage";
