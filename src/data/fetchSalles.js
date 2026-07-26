@@ -34,6 +34,11 @@ function normalize(row) {
   const equipementsStreetlifting = splitList(row.equipements_streetlifting);
   const equipementsForce = splitList(row.equipements_force);
   const brandLogo = !row.photo_principale && brandLogoFor(row.type_salle, row.nom);
+  const photoPrincipale = row.photo_principale || brandLogo?.src || "";
+  // Les photos de profil Instagram des clubs Fitness Park sont des logos carrés
+  // (nom du club sur fond uni), pas des photos de la salle : on les affiche en
+  // "contain" comme le logo générique de la chaîne, sauf si la Sheet précise autre chose.
+  const isClubLogo = /^\/images\/fitness-park\//.test(photoPrincipale);
 
   return {
     id,
@@ -54,9 +59,9 @@ function normalize(row) {
     niveau_pertinence: row.niveau_pertinence || "",
     description: row.remarques_publiques || "",
     descriptionLongue: row.description_longue || "",
-    photoPrincipale: row.photo_principale || brandLogo?.src || "",
+    photoPrincipale,
     imageAlt: row.image_alt || brandLogo?.alt || "",
-    imageType: row.image_type || (brandLogo ? "logo" : "photo"),
+    imageType: row.image_type || (brandLogo || isClubLogo ? "logo" : "photo"),
     photos: splitList(row.photos),
     horaires: row.horaires || "",
     telephone: row.telephone || "",
