@@ -1,8 +1,32 @@
+import { useMemo } from "react";
 import { GeoJSON } from "react-leaflet";
 import departements from "../data/departements.json";
 import { zoneForDepartment } from "../data/fnslZones";
 
 const UNASSIGNED_COLOR = "#5f6068";
+
+// Le contour officiel du 13 (Bouches-du-Rhône) exclut l'étang de Berre via un
+// anneau intérieur ("trou") dans le polygone, comme la mer n'est jamais
+// coloriée. Visuellement ça ressemblait à une zone manquante en plein milieu
+// du département — on ne garde donc que le contour extérieur pour ce
+// département afin qu'il se colorie uniformément avec le reste de sa zone.
+const DEPARTMENTS_WITHOUT_HOLES = new Set(["13"]);
+
+function withoutInteriorRings(geojson) {
+  return {
+    ...geojson,
+    features: geojson.features.map((feature) => {
+      const code = feature.properties.code;
+      if (!DEPARTMENTS_WITHOUT_HOLES.has(code) || feature.geometry.type !== "Polygon") {
+        return feature;
+      }
+      return {
+        ...feature,
+        geometry: { ...feature.geometry, coordinates: [feature.geometry.coordinates[0]] },
+      };
+    }),
+  };
+}
 
 function styleForDepartment(feature) {
   const zone = zoneForDepartment(feature.properties.code);
@@ -24,9 +48,11 @@ function popupContent(feature) {
 }
 
 export default function ZonesLayer() {
+  const data = useMemo(() => withoutInteriorRings(departements), []);
+
   return (
     <GeoJSON
-      data={departements}
+      data={data}
       style={styleForDepartment}
       onEachFeature={(feature, layer) => {
         layer.bindPopup(popupContent(feature));
