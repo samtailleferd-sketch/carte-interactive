@@ -13,19 +13,27 @@ const UNASSIGNED_COLOR = "#5f6068";
 // le reste de leur zone.
 const DEPARTMENTS_WITHOUT_HOLES = new Set(["13", "26"]);
 
-function withoutInteriorRings(geojson) {
+// La FNSL ne recense pas encore de club ni de compétition en Corse : plutôt
+// que de l'afficher en gris "à confirmer" (qui laissait penser à un oubli),
+// on l'exclut du calque des zones pour qu'elle se fonde dans la carte comme
+// un pays voisin non couvert (Suisse, Italie...).
+const EXCLUDED_DEPARTMENTS = new Set(["2A", "2B"]);
+
+function prepareZonesData(geojson) {
   return {
     ...geojson,
-    features: geojson.features.map((feature) => {
-      const code = feature.properties.code;
-      if (!DEPARTMENTS_WITHOUT_HOLES.has(code) || feature.geometry.type !== "Polygon") {
-        return feature;
-      }
-      return {
-        ...feature,
-        geometry: { ...feature.geometry, coordinates: [feature.geometry.coordinates[0]] },
-      };
-    }),
+    features: geojson.features
+      .filter((feature) => !EXCLUDED_DEPARTMENTS.has(feature.properties.code))
+      .map((feature) => {
+        const code = feature.properties.code;
+        if (!DEPARTMENTS_WITHOUT_HOLES.has(code) || feature.geometry.type !== "Polygon") {
+          return feature;
+        }
+        return {
+          ...feature,
+          geometry: { ...feature.geometry, coordinates: [feature.geometry.coordinates[0]] },
+        };
+      }),
   };
 }
 
@@ -49,7 +57,7 @@ function popupContent(feature) {
 }
 
 export default function ZonesLayer() {
-  const data = useMemo(() => withoutInteriorRings(departements), []);
+  const data = useMemo(() => prepareZonesData(departements), []);
 
   return (
     <GeoJSON

@@ -11,10 +11,6 @@ export default function ZonesLegend() {
           {zone.statut === "provisoire" && <span className="zones-legend__tag">provisoire</span>}
         </div>
       ))}
-      <div className="zones-legend__row zones-legend__row--muted">
-        <span className="zones-legend__swatch" style={{ background: "#5f6068" }} />
-        À confirmer
-      </div>
     </div>
   );
 }
