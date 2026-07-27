@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
 import GymImage from "./GymImage";
+import { reportErrorMailto } from "../utils/report";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -50,6 +51,10 @@ export default function GymPanel({ salle, onClose }) {
         <p className="gym-panel__niveau">Pertinence streetlifting : {salle.niveau_pertinence}</p>
       )}
 
+      {salle.dateDerniereVerification && (
+        <p className="gym-panel__verified">Vérifié le {salle.dateDerniereVerification}</p>
+      )}
+
       <div className="gym-panel__actions">
         <a className="btn btn--primary" href={directionsUrl} target="_blank" rel="noopener noreferrer">
           Itinéraire
@@ -76,7 +81,10 @@ export default function GymPanel({ salle, onClose }) {
       </Link>
 
       <p className="gym-panel__disclaimer">
-        Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.
+        Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.{" "}
+        <a href={reportErrorMailto(salle)} className="gym-panel__report-link">
+          Signaler une erreur
+        </a>
       </p>
     </div>
   );

@@ -83,6 +83,33 @@
   gap: 6px;
 }
 
+.filter-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-action-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-action-btn:hover {
+  border-color: var(--accent-strong);
+}
+
+.filter-error {
+  font-size: 12px;
+  color: var(--accent-strong);
+  margin: -6px 0 0;
+}
+
 .filter-active-tag {
   display: inline-flex;
   align-items: center;

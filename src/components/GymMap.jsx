@@ -25,6 +25,25 @@ function FlyToSelection({ salle }) {
   return null;
 }
 
+const userLocationIcon = L.divIcon({
+  className: "user-location-icon",
+  html: '<span class="user-location-dot"></span>',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
+
+function UserLocationMarker({ userLocation }) {
+  const map = useMap();
+  useEffect(() => {
+    if (userLocation) {
+      map.flyTo([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 12), { duration: 0.6 });
+    }
+  }, [userLocation, map]);
+
+  if (!userLocation) return null;
+  return <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} interactive={false} />;
+}
+
 function ViewTracker({ onViewChange }) {
   useMapEvents({
     moveend(e) {
@@ -51,7 +70,7 @@ function MapResizeObserver() {
   return null;
 }
 
-export default function GymMap({ salles, selectedId, onSelect, showZones, initialView, onViewChange }) {
+export default function GymMap({ salles, selectedId, onSelect, showZones, initialView, onViewChange, userLocation }) {
   const center = initialView?.center || [44.6, 5.6];
   const zoom = initialView?.zoom || 7;
 
@@ -73,6 +92,7 @@ export default function GymMap({ salles, selectedId, onSelect, showZones, initia
         />
       ))}
       <FlyToSelection salle={selectedSalle} />
+      <UserLocationMarker userLocation={userLocation} />
       <ViewTracker onViewChange={onViewChange} />
       <MapResizeObserver />
     </MapContainer>

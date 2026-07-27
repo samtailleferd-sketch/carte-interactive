@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   STREETLIFTING_FILTERS,
   FORCE_FILTERS,
@@ -35,8 +36,16 @@ function CheckboxGroup({ title, defaultOpen, options, selected, onToggle }) {
   );
 }
 
-export default function FilterPanel({ salles, filters, onFiltersChange }) {
+export default function FilterPanel({ salles, filters, onFiltersChange, onLocateMe, locateError }) {
+  const [linkCopied, setLinkCopied] = useState(false);
   const set = (patch) => onFiltersChange({ ...filters, ...patch });
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
 
   const chaineOptions = Array.from(new Set(salles.map((s) => s.chaine)))
     .sort((a, b) => a.localeCompare(b, "fr"))
@@ -75,6 +84,16 @@ export default function FilterPanel({ salles, filters, onFiltersChange }) {
           onChange={(e) => set({ query: e.target.value })}
         />
       </div>
+
+      <div className="filter-actions-row">
+        <button type="button" className="filter-action-btn" onClick={onLocateMe}>
+          Autour de moi
+        </button>
+        <button type="button" className="filter-action-btn" onClick={handleCopyLink}>
+          {linkCopied ? "Lien copié !" : "Copier le lien"}
+        </button>
+      </div>
+      {locateError && <p className="filter-error">{locateError}</p>}
 
       {activeTags.length > 0 && (
         <div className="filter-active-tags">

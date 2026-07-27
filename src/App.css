@@ -176,6 +176,21 @@
   transition: width 0.15s ease, height 0.15s ease;
 }
 
+.user-location-icon {
+  background: transparent;
+  border: none;
+}
+
+.user-location-dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a90d9;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(74, 144, 217, 0.35), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
 /* Fiche salle */
 .gym-panel {
   position: absolute;
@@ -392,6 +407,17 @@
   margin-top: 14px;
   font-size: 13px;
   color: var(--text-muted);
+}
+
+.gym-panel__verified {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #4cc995;
+}
+
+.gym-panel__report-link {
+  color: var(--text-muted);
+  text-decoration: underline;
 }
 
 /* Responsive mobile : fiche en bottom sheet */

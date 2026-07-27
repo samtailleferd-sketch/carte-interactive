@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import GymImage from "../components/GymImage";
+import { reportErrorMailto } from "../utils/report";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -180,6 +181,9 @@ export default function SalleDetailPage({ salles, loading }) {
           <p className="detail-disclaimer">
             Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.
           </p>
+          <a href={reportErrorMailto(salle)} className="detail-report-link">
+            Signaler une erreur sur cette fiche
+          </a>
         </section>
 
         <Link to="/" className="btn btn--full detail-back-bottom">

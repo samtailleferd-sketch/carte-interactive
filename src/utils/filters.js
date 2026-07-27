@@ -69,6 +69,42 @@ export function emptyFilters() {
   };
 }
 
+// Sérialisation des filtres dans l'URL (paramètres courts) pour permettre de
+// partager un lien vers une vue filtrée précise (ex. "Fitness Park" + "Disques
+// calibrés"). Lecture au montage uniquement, écriture (replace) à chaque
+// changement — pas de synchronisation bidirectionnelle après coup.
+const PARAM_KEYS = {
+  query: "q",
+  chaines: "chaine",
+  streetlifting: "sl",
+  force: "fo",
+  statuts: "st",
+  niveaux: "ni",
+  pratiques: "pr",
+};
+
+const SET_FILTER_KEYS = ["chaines", "streetlifting", "force", "statuts", "niveaux", "pratiques"];
+
+export function filtersToParams(filters) {
+  const params = new URLSearchParams();
+  if (filters.query.trim()) params.set(PARAM_KEYS.query, filters.query.trim());
+  for (const key of SET_FILTER_KEYS) {
+    if (filters[key].size) params.set(PARAM_KEYS[key], Array.from(filters[key]).join(","));
+  }
+  return params;
+}
+
+export function filtersFromParams(params) {
+  const filters = emptyFilters();
+  const q = params.get(PARAM_KEYS.query);
+  if (q) filters.query = q;
+  for (const key of SET_FILTER_KEYS) {
+    const raw = params.get(PARAM_KEYS[key]);
+    if (raw) filters[key] = new Set(raw.split(",").filter(Boolean));
+  }
+  return filters;
+}
+
 export function hasActiveFilters(filters) {
   return Boolean(
     filters.query.trim() ||

@@ -1,16 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import GymMap from "../components/GymMap";
 import GymPanel from "../components/GymPanel";
 import BetaBanner from "../components/BetaBanner";
 import ZonesLegend from "../components/ZonesLegend";
 import FilterSidebar from "../components/FilterSidebar";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
-import { emptyFilters, matchesFilters } from "../utils/filters";
+import { emptyFilters, matchesFilters, filtersToParams, filtersFromParams } from "../utils/filters";
 
 export default function MapPage({ salles, loading, selectedId, onSelect, mapView, onMapViewChange }) {
-  const [filters, setFilters] = useState(emptyFilters());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState(() => filtersFromParams(searchParams));
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showZones, setShowZones] = useState(true);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locateError, setLocateError] = useState("");
+
+  // Reflète les filtres actifs dans l'URL (sans polluer l'historique) pour
+  // qu'un lien copié restaure exactement la même vue filtrée.
+  useEffect(() => {
+    setSearchParams(filtersToParams(filters), { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      setLocateError("Géolocalisation non disponible sur cet appareil.");
+      return;
+    }
+    setLocateError("");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+      },
+      () => {
+        setLocateError("Impossible d'accéder à ta position — vérifie l'autorisation de localisation.");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
 
   const filtered = useMemo(() => salles.filter((s) => matchesFilters(s, filters)), [salles, filters]);
 
@@ -50,6 +78,8 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
           onFiltersChange={setFilters}
           collapsed={sidebarCollapsed}
           onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
+          onLocateMe={handleLocateMe}
+          locateError={locateError}
         />
 
         <div className="map-area">
@@ -60,6 +90,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             showZones={showZones}
             initialView={mapView}
             onViewChange={onMapViewChange}
+            userLocation={userLocation}
           />
 
           {showZones && !selectedSalle && <ZonesLegend />}
@@ -71,6 +102,8 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             filters={filters}
             onFiltersChange={setFilters}
             resultCount={filtered.length}
+            onLocateMe={handleLocateMe}
+            locateError={locateError}
           />
 
           {!selectedSalle && !loading && filtered.length > 0 && (

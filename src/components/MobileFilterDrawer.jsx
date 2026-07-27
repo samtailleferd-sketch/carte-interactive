@@ -2,7 +2,14 @@ import { useState } from "react";
 import FilterPanel from "./FilterPanel";
 import { hasActiveFilters } from "../utils/filters";
 
-export default function MobileFilterDrawer({ salles, filters, onFiltersChange, resultCount }) {
+export default function MobileFilterDrawer({
+  salles,
+  filters,
+  onFiltersChange,
+  resultCount,
+  onLocateMe,
+  locateError,
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +28,13 @@ export default function MobileFilterDrawer({ salles, filters, onFiltersChange, r
             </button>
           </div>
           <div className="mobile-filter-drawer__body">
-            <FilterPanel salles={salles} filters={filters} onFiltersChange={onFiltersChange} />
+            <FilterPanel
+              salles={salles}
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              onLocateMe={onLocateMe}
+              locateError={locateError}
+            />
           </div>
           <div className="mobile-filter-drawer__footer">
             <button className="btn btn--primary btn--full" onClick={() => setOpen(false)}>
