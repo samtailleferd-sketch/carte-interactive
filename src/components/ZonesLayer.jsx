@@ -5,12 +5,13 @@ import { zoneForDepartment } from "../data/fnslZones";
 
 const UNASSIGNED_COLOR = "#5f6068";
 
-// Le contour officiel du 13 (Bouches-du-Rhône) exclut l'étang de Berre via un
-// anneau intérieur ("trou") dans le polygone, comme la mer n'est jamais
-// coloriée. Visuellement ça ressemblait à une zone manquante en plein milieu
-// du département — on ne garde donc que le contour extérieur pour ce
-// département afin qu'il se colorie uniformément avec le reste de sa zone.
-const DEPARTMENTS_WITHOUT_HOLES = new Set(["13"]);
+// Les contours officiels du 13 (Bouches-du-Rhône, étang de Berre) et du 26
+// (Drôme) contiennent un anneau intérieur ("trou") dans leur polygone, comme
+// la mer n'est jamais coloriée. Visuellement ça ressemblait à une zone
+// manquante en plein milieu du département — on ne garde donc que le contour
+// extérieur pour ces départements afin qu'ils se colorient uniformément avec
+// le reste de leur zone.
+const DEPARTMENTS_WITHOUT_HOLES = new Set(["13", "26"]);
 
 function withoutInteriorRings(geojson) {
   return {
