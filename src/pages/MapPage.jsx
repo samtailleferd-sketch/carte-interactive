@@ -58,8 +58,8 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
 
       <header className="app__header">
         <div className="app__brand">
-          <span className="app__brand-mark">FNSL</span>
-          <span className="app__brand-sub">Sud Est</span>
+          <span className="app__brand-mark">Street</span>
+          <span className="app__brand-sub">Map</span>
         </div>
         <label className="app__zones-toggle">
           <input

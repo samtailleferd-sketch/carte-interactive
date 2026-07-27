@@ -65,8 +65,8 @@ export default function SalleDetailPage({ salles, loading }) {
           ← Retour à la carte
         </Link>
         <div className="detail-header__brand">
-          <span className="app__brand-mark">FNSL</span>
-          <span className="app__brand-sub">Sud Est</span>
+          <span className="app__brand-mark">Street</span>
+          <span className="app__brand-sub">Map</span>
         </div>
       </header>
 

@@ -34,8 +34,12 @@ export const fnslZones = {
   "Centre": {
     color: "#9b7fd4",
     statut: "provisoire",
-    source: "Aucun département confirmé - regroupement provisoire sur Centre-Val de Loire",
-    departments: ["18", "28", "36", "37", "41", "45"],
+    source: "Précisé par la FNSL Sud Est : la zone FNSL Centre couvre aussi l'Île-de-France et les Hauts-de-France, en plus du Centre-Val de Loire",
+    departments: [
+      "18", "28", "36", "37", "41", "45", // Centre-Val de Loire
+      "75", "77", "78", "91", "92", "93", "94", "95", // Île-de-France
+      "02", "59", "60", "62", "80", // Hauts-de-France
+    ],
   },
   "Sud Ouest": {
     color: "#ffb703",
@@ -48,7 +52,7 @@ export const fnslZones = {
   },
 };
 
-// Départements volontairement non attribués : Île-de-France, Hauts-de-France, Corse.
+// Départements volontairement non attribués : Corse.
 // Leur zone FNSL n'a pas été identifiée avec certitude - ils restent "à confirmer"
 // plutôt que rattachés arbitrairement à une zone voisine.
 export function zoneForDepartment(code) {
