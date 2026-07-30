@@ -8,6 +8,7 @@ import {
   emptyFilters,
   hasActiveFilters,
 } from "../utils/filters";
+import { PROPOSE_SALLE_FORM_URL } from "../config";
 
 function toggleInSet(set, value) {
   const next = new Set(set);
@@ -92,6 +93,16 @@ export default function FilterPanel({ salles, filters, onFiltersChange, onLocate
         <button type="button" className="filter-action-btn" onClick={handleCopyLink}>
           {linkCopied ? "Lien copié !" : "Copier le lien"}
         </button>
+        {PROPOSE_SALLE_FORM_URL && (
+          <a
+            href={PROPOSE_SALLE_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="filter-action-btn filter-action-btn--full"
+          >
+            Proposer une salle
+          </a>
+        )}
       </div>
       {locateError && <p className="filter-error">{locateError}</p>}
 

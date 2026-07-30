@@ -1,15 +1,20 @@
 import Papa from "papaparse";
-import { SHEET_CSV_URL } from "../config";
+import { SHEET_CSV_URL, PHOTOS_CSV_URL } from "../config";
 import localSalles from "./salles.json";
 import { slugify } from "../utils/slug";
 import { chainFor } from "./chains";
 
 const FALSE_VALUES = new Set(["false", "faux", "non", "0", "no"]);
+const TRUE_VALUES = new Set(["true", "vrai", "oui", "1", "yes"]);
 
 function parseVisible(raw) {
   const trimmed = String(raw ?? "").trim().toLowerCase();
   if (!trimmed) return true;
   return !FALSE_VALUES.has(trimmed);
+}
+
+function parseBool(raw) {
+  return TRUE_VALUES.has(String(raw ?? "").trim().toLowerCase());
 }
 
 function splitList(value) {
@@ -18,6 +23,15 @@ function splitList(value) {
     .split(/[;,]/)
     .map((v) => v.trim())
     .filter(Boolean);
+}
+
+// Insensible aux accents/casse pour comparer un statut de modération saisi à la main.
+function normalizeText(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 function normalize(row) {
@@ -56,7 +70,7 @@ function normalize(row) {
     photoPrincipale,
     imageAlt: row.image_alt || brandLogo?.alt || "",
     imageType: row.image_type || (brandLogo || isClubLogo ? "logo" : "photo"),
-    photos: splitList(row.photos),
+    photos: [],
     horaires: row.horaires || "",
     telephone: row.telephone || "",
     email: row.email || "",
@@ -70,11 +84,15 @@ function normalize(row) {
   };
 }
 
-async function fetchFromSheet() {
-  const response = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+async function fetchCsv(url) {
+  const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`Réponse HTTP ${response.status}`);
   const csvText = await response.text();
-  const { data } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+  return Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
+}
+
+async function fetchFromSheet() {
+  const data = await fetchCsv(SHEET_CSV_URL);
   return data.map(normalize);
 }
 
@@ -82,11 +100,51 @@ function fromLocalFixture() {
   return localSalles.map(normalize);
 }
 
+// Groupe les lignes de l'onglet "Photos" (une ligne = une photo) par salle,
+// en ne gardant que les photos autorisées et validées manuellement — une
+// salle sans ligne, ou dont aucune ligne n'est encore validée, n'a
+// simplement aucune photo (fiche complète affiche "Photos à venir.").
+async function fetchPhotosBySalleId() {
+  if (!PHOTOS_CSV_URL) return new Map();
+
+  let rows;
+  try {
+    rows = await fetchCsv(PHOTOS_CSV_URL);
+  } catch (err) {
+    console.warn("Impossible de charger l'onglet Photos, les fiches s'afficheront sans galerie.", err);
+    return new Map();
+  }
+
+  const bySalle = new Map();
+  for (const row of rows) {
+    const salleId = row.salle_id;
+    if (!salleId || !row.url) continue;
+    if (!parseBool(row.autorisee) || normalizeText(row.statut) !== "validee") continue;
+
+    const photo = {
+      url: row.url,
+      alt: row.alt || "",
+      legende: row.legende || "",
+      credit: row.credit || "",
+      ordre: Number.parseInt(row.ordre, 10),
+    };
+    if (!bySalle.has(salleId)) bySalle.set(salleId, []);
+    bySalle.get(salleId).push(photo);
+  }
+
+  for (const photos of bySalle.values()) {
+    photos.sort((a, b) => (Number.isNaN(a.ordre) ? 0 : a.ordre) - (Number.isNaN(b.ordre) ? 0 : b.ordre));
+  }
+  return bySalle;
+}
+
 export async function fetchSalles() {
   let salles;
+  let photosBySalleId = new Map();
+
   if (SHEET_CSV_URL) {
     try {
-      salles = await fetchFromSheet();
+      [salles, photosBySalleId] = await Promise.all([fetchFromSheet(), fetchPhotosBySalleId()]);
     } catch (err) {
       console.warn("Impossible de charger le Google Sheet, repli sur les données locales.", err);
       salles = fromLocalFixture();
@@ -95,5 +153,7 @@ export async function fetchSalles() {
     salles = fromLocalFixture();
   }
 
-  return salles.filter((s) => s.visible && Number.isFinite(s.lat) && Number.isFinite(s.lng));
+  return salles
+    .filter((s) => s.visible && Number.isFinite(s.lat) && Number.isFinite(s.lng))
+    .map((s) => ({ ...s, photos: photosBySalleId.get(s.id) || [] }));
 }

@@ -163,7 +163,25 @@ export default function SalleDetailPage({ salles, loading }) {
           {salle.photos && salle.photos.length > 0 ? (
             <div className="detail-gallery">
               {salle.photos.map((photo) => (
-                <img key={photo} src={photo} alt={`${salle.nom} - photo`} className="detail-gallery__item" />
+                <a
+                  key={photo.url}
+                  href={photo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="detail-gallery__figure"
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.alt || `${salle.nom} - photo`}
+                    loading="lazy"
+                    className="detail-gallery__item"
+                  />
+                  {(photo.legende || photo.credit) && (
+                    <span className="detail-gallery__caption">
+                      {[photo.legende, photo.credit && `© ${photo.credit}`].filter(Boolean).join(" — ")}
+                    </span>
+                  )}
+                </a>
               ))}
             </div>
           ) : (
