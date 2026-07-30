@@ -2,15 +2,15 @@
   "name": "FNSL Sud Est — Carte des salles streetlifting",
   "short_name": "FNSL Sud Est",
   "description": "Carte interactive des salles adaptées au streetlifting et à la force dans le Sud Est de la France.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/carte-interactive/",
+  "scope": "/carte-interactive/",
   "display": "standalone",
   "background_color": "#0b0c10",
   "theme_color": "#0b0c10",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/carte-interactive/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/carte-interactive/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/carte-interactive/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/carte-interactive/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

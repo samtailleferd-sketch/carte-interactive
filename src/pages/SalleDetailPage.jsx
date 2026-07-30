@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import GymImage from "../components/GymImage";
 import { reportErrorMailto } from "../utils/report";
+import { resolveAssetUrl } from "../utils/assetUrl";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -165,13 +166,13 @@ export default function SalleDetailPage({ salles, loading }) {
               {salle.photos.map((photo) => (
                 <a
                   key={photo.url}
-                  href={photo.url}
+                  href={resolveAssetUrl(photo.url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="detail-gallery__figure"
                 >
                   <img
-                    src={photo.url}
+                    src={resolveAssetUrl(photo.url)}
                     alt={photo.alt || `${salle.nom} - photo`}
                     loading="lazy"
                     className="detail-gallery__item"

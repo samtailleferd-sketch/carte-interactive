@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from "../utils/assetUrl";
+
 function initials(nom) {
   const words = (nom || "").trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "?";
@@ -12,7 +14,7 @@ export default function GymImage({ src, alt, type, nom, variant = "preview" }) {
     return (
       <div className={className}>
         <img
-          src={src}
+          src={resolveAssetUrl(src)}
           alt={alt || nom}
           className={type === "logo" ? "gym-image__img gym-image__img--contain" : "gym-image__img gym-image__img--cover"}
         />
