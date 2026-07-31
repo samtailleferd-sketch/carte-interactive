@@ -160,7 +160,7 @@ export default function SalleDetailPage({ salles, loading }) {
         )}
 
         <section className="detail-section">
-          <h2>Photos</h2>
+          <h2>Photos et vidéos</h2>
           {salle.photos && salle.photos.length > 0 ? (
             <div className="detail-gallery">
               {salle.photos.map((photo) => {
@@ -194,7 +194,7 @@ export default function SalleDetailPage({ salles, loading }) {
               })}
             </div>
           ) : (
-            <p className="detail-section__empty">Photos à venir.</p>
+            <p className="detail-section__empty">Photos et vidéos à venir.</p>
           )}
         </section>
 
