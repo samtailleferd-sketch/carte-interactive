@@ -127,6 +127,12 @@ async function fetchPhotosBySalleId() {
       legende: row.legende || "",
       credit: row.credit || "",
       ordre: Number.parseInt(row.ordre, 10),
+      // "video" : la vignette (row.url) reste une image de couverture locale,
+      // mais le clic redirige vers lienExterne (ex. le reel Instagram
+      // d'origine) plutôt que d'ouvrir l'image en grand — on n'héberge pas
+      // la vidéo elle-même.
+      type: normalizeText(row.type) === "video" ? "video" : "photo",
+      lienExterne: row.lien_externe || "",
     };
     if (!bySalle.has(salleId)) bySalle.set(salleId, []);
     bySalle.get(salleId).push(photo);

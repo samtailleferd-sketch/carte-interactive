@@ -163,27 +163,35 @@ export default function SalleDetailPage({ salles, loading }) {
           <h2>Photos</h2>
           {salle.photos && salle.photos.length > 0 ? (
             <div className="detail-gallery">
-              {salle.photos.map((photo) => (
-                <a
-                  key={photo.url}
-                  href={resolveAssetUrl(photo.url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-gallery__figure"
-                >
-                  <img
-                    src={resolveAssetUrl(photo.url)}
-                    alt={photo.alt || `${salle.nom} - photo`}
-                    loading="lazy"
-                    className="detail-gallery__item"
-                  />
-                  {(photo.legende || photo.credit) && (
-                    <span className="detail-gallery__caption">
-                      {[photo.legende, photo.credit && `© ${photo.credit}`].filter(Boolean).join(" — ")}
-                    </span>
-                  )}
-                </a>
-              ))}
+              {salle.photos.map((photo) => {
+                const isVideo = photo.type === "video" && photo.lienExterne;
+                return (
+                  <a
+                    key={photo.url}
+                    href={isVideo ? photo.lienExterne : resolveAssetUrl(photo.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="detail-gallery__figure"
+                  >
+                    <img
+                      src={resolveAssetUrl(photo.url)}
+                      alt={photo.alt || `${salle.nom} - photo`}
+                      loading="lazy"
+                      className="detail-gallery__item"
+                    />
+                    {isVideo && (
+                      <span className="detail-gallery__play" aria-hidden="true">
+                        ▶
+                      </span>
+                    )}
+                    {(photo.legende || photo.credit) && (
+                      <span className="detail-gallery__caption">
+                        {[photo.legende, photo.credit && `© ${photo.credit}`].filter(Boolean).join(" — ")}
+                      </span>
+                    )}
+                  </a>
+                );
+              })}
             </div>
           ) : (
             <p className="detail-section__empty">Photos à venir.</p>
