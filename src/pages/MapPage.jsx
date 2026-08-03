@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import GymMap from "../components/GymMap";
 import GymPanel from "../components/GymPanel";
 import BetaBanner from "../components/BetaBanner";
 import ZonesLegend from "../components/ZonesLegend";
 import FilterSidebar from "../components/FilterSidebar";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
+import AuthModal from "../components/AuthModal";
+import { useAuth } from "../hooks/useAuth";
 import { emptyFilters, matchesFilters, filtersToParams, filtersFromParams } from "../utils/filters";
 
 export default function MapPage({ salles, loading, selectedId, onSelect, mapView, onMapViewChange }) {
@@ -15,6 +17,20 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
   const [showZones, setShowZones] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
   const [locateError, setLocateError] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const { user } = useAuth();
+
+  // Un lien de connexion Supabase expiré/invalide redirige ici avec un
+  // message d'erreur stocké par main.jsx (voir commentaire là-bas) — on
+  // l'affiche une fois puis on l'efface pour ne pas le montrer à nouveau.
+  useEffect(() => {
+    const stored = sessionStorage.getItem("authError");
+    if (stored) {
+      setAuthError(stored);
+      sessionStorage.removeItem("authError");
+    }
+  }, []);
 
   // Reflète les filtres actifs dans l'URL (sans polluer l'historique) pour
   // qu'un lien copié restaure exactement la même vue filtrée.
@@ -55,21 +71,49 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
   return (
     <div className="app">
       <BetaBanner />
+      {authError && (
+        <p className="app__auth-error">
+          Connexion impossible : {authError}{" "}
+          <button
+            type="button"
+            className="app__auth-error-retry"
+            onClick={() => {
+              setAuthError("");
+              setShowAuthModal(true);
+            }}
+          >
+            Réessayer
+          </button>
+        </p>
+      )}
 
       <header className="app__header">
         <div className="app__brand">
           <span className="app__brand-mark">Street</span>
           <span className="app__brand-sub">Map</span>
         </div>
-        <label className="app__zones-toggle">
-          <input
-            type="checkbox"
-            checked={showZones}
-            onChange={(e) => setShowZones(e.target.checked)}
-          />
-          Zones FNSL
-        </label>
+        <div className="app__header-actions">
+          <label className="app__zones-toggle">
+            <input
+              type="checkbox"
+              checked={showZones}
+              onChange={(e) => setShowZones(e.target.checked)}
+            />
+            Zones FNSL
+          </label>
+          {user ? (
+            <Link to="/compte" className="app__account-link">
+              Mon compte
+            </Link>
+          ) : (
+            <button type="button" className="app__account-link" onClick={() => setShowAuthModal(true)}>
+              Se connecter
+            </button>
+          )}
+        </div>
       </header>
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
       <main className="app__body">
         <FilterSidebar

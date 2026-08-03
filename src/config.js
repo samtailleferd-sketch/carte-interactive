@@ -16,3 +16,10 @@ export const PHOTOS_CSV_URL =
 // "en cours de préparation" plutôt qu'un iframe cassé.
 export const PROPOSE_SALLE_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdKAZdQ0ZgWJcMvVu1P-_pKqi7PRwknV-OUVxaHueKbGDD3vw/viewform";
+
+// Projet Supabase (comptes utilisateurs). La clé "publishable"/"anon" est
+// conçue pour être exposée côté client — la sécurité vient des policies RLS
+// définies sur chaque table, jamais du secret de cette clé. Ne JAMAIS mettre
+// ici la clé "secret"/"service_role", qui contourne les RLS.
+export const SUPABASE_URL = "https://cldvzzccraenzcnsotpo.supabase.co";
+export const SUPABASE_ANON_KEY = "sb_publishable_JXfWV0asYIoNoKksI72Z1w_hJ5WhPwm";

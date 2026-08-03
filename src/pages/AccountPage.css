@@ -1,0 +1,71 @@
+.account-page {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100svh;
+}
+
+.account-page__content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.account-page__hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.account-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.account-page__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.account-page__form input[type="text"],
+.account-page__form input[type="email"],
+.account-page__form select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.account-page__form input:disabled {
+  opacity: 0.6;
+}
+
+.account-page__checkbox {
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 8px !important;
+  cursor: pointer;
+}
+
+.account-page__checkbox input {
+  margin-top: 2px;
+}
+
+.account-page__signout {
+  margin-top: -4px;
+}
+
+.account-page__delete-link {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  margin-top: 4px;
+}
