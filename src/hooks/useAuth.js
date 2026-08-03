@@ -1,6 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 
+// Choisies dans AuthModal avant que le compte n'existe (le lien de connexion
+// par email ramène l'utilisateur sur une nouvelle page, sans l'état du
+// composant d'origine) — on les récupère ici juste après la connexion.
+export const PENDING_CONSENT_KEY = "streetmap_pending_consent";
+
+async function applyPendingConsent(userId) {
+  const raw = localStorage.getItem(PENDING_CONSENT_KEY);
+  if (!raw || !userId) return;
+  localStorage.removeItem(PENDING_CONSENT_KEY);
+  try {
+    await supabase.from("profiles").upsert({ id: userId, ...JSON.parse(raw) });
+  } catch {
+    // Préférences non-bloquantes : une fiche profile minimale sans elles
+    // reste utilisable, l'utilisateur peut les régler sur /compte.
+  }
+}
+
 // Expose la session utilisateur courante + sa ligne "profiles" associée à
 // toute l'app. Tolère l'absence de Supabase configuré (supabase === null) :
 // dans ce cas user/profile restent null et loading passe à false — la carte
@@ -27,8 +44,11 @@ export function useAuth() {
       loadProfile(session?.user?.id).finally(() => setLoading(false));
     });
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null);
+      if (event === "SIGNED_IN") {
+        await applyPendingConsent(session?.user?.id);
+      }
       loadProfile(session?.user?.id);
     });
 
