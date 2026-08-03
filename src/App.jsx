@@ -4,8 +4,10 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 import "./components/FilterSidebar.css";
 import "./pages/SalleDetailPage.css";
+import "./pages/ProposeSallePage.css";
 import MapPage from "./pages/MapPage";
 import SalleDetailPage from "./pages/SalleDetailPage";
+import ProposeSallePage from "./pages/ProposeSallePage";
 import { fetchSalles } from "./data/fetchSalles";
 
 const DEFAULT_MAP_VIEW = { center: [44.6, 5.6], zoom: 7 };
@@ -38,6 +40,7 @@ function App() {
         }
       />
       <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
+      <Route path="/proposer" element={<ProposeSallePage />} />
     </Routes>
   );
 }
