@@ -202,7 +202,7 @@ export default function AccountPage() {
                   checked={!!current.alertes_locales_consent}
                   onChange={(e) => set({ alertes_locales_consent: e.target.checked })}
                 />
-                Recevoir les alertes de nouvelles salles proches de chez moi
+                Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL
               </label>
 
               <label className="account-page__checkbox">

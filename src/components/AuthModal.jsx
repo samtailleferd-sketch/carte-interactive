@@ -72,7 +72,7 @@ export default function AuthModal({ onClose }) {
                 checked={alertesLocales}
                 onChange={(e) => setAlertesLocales(e.target.checked)}
               />
-              Recevoir les alertes de nouvelles salles proches de chez moi
+              Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL
             </label>
             <label className="auth-modal__checkbox">
               <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} />

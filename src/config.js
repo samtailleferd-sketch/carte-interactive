@@ -23,3 +23,14 @@ export const PROPOSE_SALLE_FORM_URL =
 // ici la clé "secret"/"service_role", qui contourne les RLS.
 export const SUPABASE_URL = "https://cldvzzccraenzcnsotpo.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_JXfWV0asYIoNoKksI72Z1w_hJ5WhPwm";
+
+// URL publique du site déployé (GitHub Pages) — sert à construire des liens
+// absolus utilisables en dehors de l'app (emails d'alerte notamment), là où
+// des liens relatifs n'ont pas de sens.
+export const SITE_URL = "https://samtailleferd-sketch.github.io/carte-interactive/";
+
+// Seul compte autorisé à envoyer des alertes email et à voir /admin/alertes
+// — vérifié côté client (masquer l'écran) ET côté Edge Function (la vraie
+// barrière de sécurité, RLS + vérification du JWT ne peuvent pas être
+// contournées depuis le navigateur).
+export const ADMIN_EMAIL = "tailleferdsam@gmail.com";

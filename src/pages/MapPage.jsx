@@ -8,6 +8,7 @@ import MobileFilterDrawer from "../components/MobileFilterDrawer";
 import AuthModal from "../components/AuthModal";
 import { useAuth } from "../hooks/useAuth";
 import { emptyFilters, matchesFilters, filtersToParams, filtersFromParams } from "../utils/filters";
+import { ADMIN_EMAIL } from "../config";
 
 export default function MapPage({ salles, loading, selectedId, onSelect, mapView, onMapViewChange }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -99,6 +100,11 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             />
             Zones FNSL
           </label>
+          {user?.email === ADMIN_EMAIL && (
+            <Link to="/admin/alertes" className="app__account-link">
+              Admin
+            </Link>
+          )}
           {user ? (
             <Link to="/compte" className="app__account-link">
               Mon compte
