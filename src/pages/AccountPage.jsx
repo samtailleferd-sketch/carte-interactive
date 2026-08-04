@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
+import { compressImage } from "../utils/compressImage";
 
 const DELETE_EMAIL = "tailleferdsam@gmail.com";
 const AVATAR_BUCKET = "avatars";
@@ -52,15 +53,25 @@ export default function AccountPage() {
     setUploadError("");
     setUploading(true);
 
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
+    let compressed;
+    try {
+      // Toujours réduite à 800px max et réencodée en JPEG — une photo de
+      // téléphone de plusieurs dizaines de Mo devient quelques centaines de Ko.
+      compressed = await compressImage(file);
+    } catch {
+      setUploading(false);
+      setUploadError("Cette image n'a pas pu être traitée — essaie un autre fichier.");
+      return;
+    }
+
+    const path = `${user.id}/avatar.jpg`;
     const { error: uploadErr } = await supabase.storage
       .from(AVATAR_BUCKET)
-      .upload(path, file, { upsert: true });
+      .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
 
     if (uploadErr) {
       setUploading(false);
-      setUploadError("Envoi impossible — réessaie avec une image plus légère.");
+      setUploadError(`Envoi impossible : ${uploadErr.message}`);
       return;
     }
 
