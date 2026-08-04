@@ -139,9 +139,9 @@ export default function AccountPage() {
                 <input
                   type="text"
                   autoComplete="off"
+                  required
                   value={current.prenom || ""}
                   onChange={(e) => set({ prenom: e.target.value })}
-                  placeholder="Optionnel"
                 />
               </label>
 
@@ -150,9 +150,9 @@ export default function AccountPage() {
                 <input
                   type="text"
                   autoComplete="off"
+                  required
                   value={current.nom || ""}
                   onChange={(e) => set({ nom: e.target.value })}
-                  placeholder="Optionnel"
                 />
               </label>
 
@@ -161,9 +161,9 @@ export default function AccountPage() {
                 <input
                   type="text"
                   autoComplete="off"
+                  required
                   value={current.ville || ""}
                   onChange={(e) => set({ ville: e.target.value })}
-                  placeholder="Optionnel"
                 />
               </label>
 
@@ -172,16 +172,22 @@ export default function AccountPage() {
                 <input
                   type="text"
                   autoComplete="off"
+                  required
                   value={current.code_postal || ""}
                   onChange={(e) => set({ code_postal: e.target.value })}
-                  placeholder="Optionnel"
                 />
               </label>
 
               <label>
                 Région FNSL
-                <select value={current.region_fnsl || ""} onChange={(e) => set({ region_fnsl: e.target.value })}>
-                  <option value="">— Non renseignée —</option>
+                <select
+                  required
+                  value={current.region_fnsl || ""}
+                  onChange={(e) => set({ region_fnsl: e.target.value })}
+                >
+                  <option value="" disabled>
+                    Choisis ta région
+                  </option>
                   {Object.keys(fnslZones).map((zone) => (
                     <option key={zone} value={zone}>
                       {zone}
