@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import GymMap from "../components/GymMap";
 import GymPanel from "../components/GymPanel";
-import BetaBanner from "../components/BetaBanner";
 import ZonesLegend from "../components/ZonesLegend";
 import FilterSidebar from "../components/FilterSidebar";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
@@ -70,7 +69,6 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
 
   return (
     <div className="app">
-      <BetaBanner />
       {authError && (
         <p className="app__auth-error">
           Connexion impossible : {authError}{" "}

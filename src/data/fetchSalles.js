@@ -116,32 +116,43 @@ async function fetchPhotosBySalleId() {
   }
 
   const bySalle = new Map();
-  for (const row of rows) {
-    const salleId = row.salle_id;
-    if (!salleId || !row.url) continue;
-    if (!parseBool(row.autorisee) || normalizeText(row.statut) !== "validee") continue;
+  try {
+    for (const row of rows) {
+      const salleId = row.salle_id;
+      if (!salleId || !row.url) continue;
+      if (!parseBool(row.autorisee) || normalizeText(row.statut) !== "validee") continue;
 
-    const photo = {
-      url: row.url,
-      alt: row.alt || "",
-      legende: row.legende || "",
-      credit: row.credit || "",
-      ordre: Number.parseInt(row.ordre, 10),
-      // "video" : la vignette (row.url) reste une image de couverture locale,
-      // mais le clic redirige vers lienExterne (ex. le reel Instagram
-      // d'origine) plutôt que d'ouvrir l'image en grand — on n'héberge pas
-      // la vidéo elle-même.
-      type: normalizeText(row.type) === "video" ? "video" : "photo",
-      lienExterne: row.lien_externe || "",
-    };
-    if (!bySalle.has(salleId)) bySalle.set(salleId, []);
-    bySalle.get(salleId).push(photo);
+      const photo = {
+        url: row.url,
+        alt: row.alt || "",
+        legende: row.legende || "",
+        credit: row.credit || "",
+        ordre: Number.parseInt(row.ordre, 10),
+        // "video" : la vignette (row.url) reste une image de couverture locale,
+        // mais le clic redirige vers lienExterne (ex. le reel Instagram
+        // d'origine) plutôt que d'ouvrir l'image en grand — on n'héberge pas
+        // la vidéo elle-même.
+        type: normalizeText(row.type) === "video" ? "video" : "photo",
+        lienExterne: row.lien_externe || "",
+      };
+      if (!bySalle.has(salleId)) bySalle.set(salleId, []);
+      bySalle.get(salleId).push(photo);
+    }
+  } catch (err) {
+    // Une ligne malformée dans l'onglet Photos ne doit jamais faire échouer
+    // le chargement des salles elles-mêmes (voir fetchSalles) — au pire, la
+    // galerie reste incomplète pour cette salle.
+    console.warn("Ligne(s) invalide(s) dans l'onglet Photos, galerie partielle.", err);
   }
 
   for (const photos of bySalle.values()) {
     photos.sort((a, b) => (Number.isNaN(a.ordre) ? 0 : a.ordre) - (Number.isNaN(b.ordre) ? 0 : b.ordre));
   }
   return bySalle;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function fetchSalles() {
@@ -151,6 +162,16 @@ export async function fetchSalles() {
   if (SHEET_CSV_URL) {
     try {
       [salles, photosBySalleId] = await Promise.all([fetchFromSheet(), fetchPhotosBySalleId()]);
+      // Un Sheet qui répond mais renvoie 0 ligne est plus probablement un
+      // souci passager (propagation Google, réponse tronquée) qu'une vraie
+      // carte sans salle — on retente une fois avant d'abandonner, pour
+      // éviter d'afficher "Aucune salle" alors que les 80+ salles existent
+      // bien côté Sheet.
+      if (salles.length === 0) {
+        await wait(1500);
+        salles = await fetchFromSheet();
+      }
+      if (salles.length === 0) throw new Error("Onglet Public vide après nouvelle tentative");
     } catch (err) {
       console.warn("Impossible de charger le Google Sheet, repli sur les données locales.", err);
       salles = fromLocalFixture();

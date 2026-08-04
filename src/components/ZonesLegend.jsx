@@ -8,7 +8,6 @@ export default function ZonesLegend() {
         <div className="zones-legend__row" key={name}>
           <span className="zones-legend__swatch" style={{ background: zone.color }} />
           {name}
-          {zone.statut === "provisoire" && <span className="zones-legend__tag">provisoire</span>}
         </div>
       ))}
     </div>

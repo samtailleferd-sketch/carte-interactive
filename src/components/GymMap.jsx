@@ -56,6 +56,18 @@ function ViewTracker({ onViewChange }) {
   return null;
 }
 
+// Retire le petit crédit "Leaflet" ajouté par défaut par la librairie — pas
+// une obligation légale (contrairement à OpenStreetMap/CARTO ci-dessous, qui
+// doivent rester visibles pour respecter leurs conditions d'utilisation
+// gratuites).
+function RemoveLeafletPrefix() {
+  const map = useMap();
+  useEffect(() => {
+    map.attributionControl.setPrefix(false);
+  }, [map]);
+  return null;
+}
+
 // Leaflet ne détecte pas automatiquement un changement de taille de son
 // conteneur (ex. repli/dépli de la sidebar de filtres) — seul un resize de
 // la fenêtre déclenche un recalcul. On observe donc le conteneur directement.
@@ -95,6 +107,7 @@ export default function GymMap({ salles, selectedId, onSelect, showZones, initia
       <UserLocationMarker userLocation={userLocation} />
       <ViewTracker onViewChange={onViewChange} />
       <MapResizeObserver />
+      <RemoveLeafletPrefix />
     </MapContainer>
   );
 }
