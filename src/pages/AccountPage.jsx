@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useFavorites } from "../hooks/useFavorites";
 import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
 import { compressImage } from "../utils/compressImage";
+import { fetchSalles } from "../data/fetchSalles";
 
 const DELETE_EMAIL = "tailleferdsam@gmail.com";
 const AVATAR_BUCKET = "avatars";
@@ -16,13 +18,20 @@ function deleteAccountMailto(email) {
 
 export default function AccountPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
+  const { favorites, toggleFavorite } = useFavorites();
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [salles, setSalles] = useState([]);
+
+  useEffect(() => {
+    fetchSalles().then(setSalles);
+  }, []);
 
   const current = form || profile || {};
+  const favoriteSalles = salles.filter((s) => favorites.has(s.id));
 
   const set = (patch) => {
     setForm({ ...current, ...patch });
@@ -231,6 +240,33 @@ export default function AccountPage() {
                 Demander la suppression de mon compte
               </a>
             </form>
+
+            <section className="account-page__favorites">
+              <h2>Salles favorites</h2>
+              {favoriteSalles.length === 0 ? (
+                <p className="account-page__hint">
+                  Aucune salle favorite pour l'instant — clique sur le cœur d'une fiche pour l'ajouter ici.
+                </p>
+              ) : (
+                <ul className="account-page__favorites-list">
+                  {favoriteSalles.map((salle) => (
+                    <li key={salle.id} className="account-page__favorites-item">
+                      <Link to={`/salles/${salle.slug}`}>
+                        {salle.nom} <span>— {salle.ville}</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => toggleFavorite(salle.id)}
+                        aria-label="Retirer des favoris"
+                        className="account-page__favorites-remove"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </>
         )}
       </div>
