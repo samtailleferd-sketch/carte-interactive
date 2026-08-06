@@ -43,6 +43,16 @@
   margin: 0 0 18px;
 }
 
+.propose-page__confirmation-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detail-header--minimal {
+  justify-content: center;
+}
+
 .propose-form {
   display: flex;
   flex-direction: column;
@@ -58,6 +68,8 @@
 }
 
 .propose-form input[type="text"],
+.propose-form input[type="tel"],
+.propose-form input[type="email"],
 .propose-form textarea {
   padding: 10px 12px;
   border-radius: 8px;
@@ -73,6 +85,40 @@
 .propose-form textarea:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
+}
+
+.propose-form__checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.propose-form__checkbox-group-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.propose-form__checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.propose-form__checkbox {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.propose-form__photos-consent {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 10px;
 }
 
 .propose-form__photos-label {

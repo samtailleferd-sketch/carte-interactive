@@ -13,6 +13,7 @@ import "./components/ReportModal.css";
 import MapPage from "./pages/MapPage";
 import SalleDetailPage from "./pages/SalleDetailPage";
 import ProposeSallePage from "./pages/ProposeSallePage";
+import ReferencerSallePage from "./pages/ReferencerSallePage";
 import AccountPage from "./pages/AccountPage";
 import AdminPage from "./pages/AdminPage";
 import AdminAlertsPage from "./pages/AdminAlertsPage";
@@ -50,6 +51,7 @@ function App() {
       />
       <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
       <Route path="/proposer" element={<ProposeSallePage />} />
+      <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
       <Route path="/compte" element={<AccountPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/alertes" element={<AdminAlertsPage />} />

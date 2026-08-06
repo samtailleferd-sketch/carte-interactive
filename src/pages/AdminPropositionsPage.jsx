@@ -94,18 +94,46 @@ export default function AdminPropositionsPage() {
               <li key={prop.id} className="admin-alerts-page__item">
                 <div className="admin-alerts-page__item-info">
                   <p className="admin-alerts-page__item-nom">
-                    {prop.nom} <span className={`admin-propositions__statut admin-propositions__statut--${prop.statut}`}>{STATUT_LABELS[prop.statut] || prop.statut}</span>
+                    {prop.nom}{" "}
+                    <span className={`admin-propositions__statut admin-propositions__statut--${prop.statut}`}>
+                      {STATUT_LABELS[prop.statut] || prop.statut}
+                    </span>{" "}
+                    <span className="admin-propositions__source">
+                      {prop.source === "salle" ? "Salle" : "Utilisateur"}
+                    </span>
                   </p>
                   <p className="admin-alerts-page__item-meta">
                     {prop.ville}
                     {prop.adresse ? ` — ${prop.adresse}` : ""}
+                    {prop.code_postal ? ` (${prop.code_postal})` : ""}
                   </p>
                   <p className="admin-alerts-page__item-meta">
                     Proposée le {new Date(prop.created_at).toLocaleDateString("fr-FR")}
                   </p>
+                  {(prop.telephone || prop.email) && (
+                    <p className="admin-alerts-page__item-meta">
+                      {[prop.telephone, prop.email].filter(Boolean).join(" — ")}
+                    </p>
+                  )}
+                  {prop.horaires && <p className="admin-alerts-page__item-meta">Horaires : {prop.horaires}</p>}
+                  {prop.prix_seance && (
+                    <p className="admin-alerts-page__item-meta">Prix à la séance : {prop.prix_seance}</p>
+                  )}
+                  {prop.chaine && <p className="admin-alerts-page__item-meta">Chaîne : {prop.chaine}</p>}
                 </div>
 
+                {prop.description_courte && (
+                  <p className="admin-propositions__remarques">{prop.description_courte}</p>
+                )}
                 {prop.remarques && <p className="admin-propositions__remarques">{prop.remarques}</p>}
+                {(prop.equipements_streetlifting || prop.equipements_force || prop.equipements_autres) && (
+                  <p className="admin-propositions__remarques">
+                    Équipements :{" "}
+                    {[prop.equipements_streetlifting, prop.equipements_force, prop.equipements_autres]
+                      .filter(Boolean)
+                      .join(" — ")}
+                  </p>
+                )}
 
                 <div className="admin-alerts-page__item-actions">
                   {isRealLink(prop.instagram) && (
@@ -116,6 +144,16 @@ export default function AdminPropositionsPage() {
                   {isRealLink(prop.site_web) && (
                     <a className="btn" href={prop.site_web} target="_blank" rel="noopener noreferrer">
                       Site web
+                    </a>
+                  )}
+                  {isRealLink(prop.google_maps_url) && (
+                    <a className="btn" href={prop.google_maps_url} target="_blank" rel="noopener noreferrer">
+                      Google Maps
+                    </a>
+                  )}
+                  {isRealLink(prop.reservation_url) && (
+                    <a className="btn" href={prop.reservation_url} target="_blank" rel="noopener noreferrer">
+                      Réservation
                     </a>
                   )}
                 </div>
