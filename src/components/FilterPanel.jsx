@@ -37,7 +37,7 @@ function CheckboxGroup({ title, defaultOpen, options, selected, onToggle }) {
   );
 }
 
-export default function FilterPanel({ salles, filters, onFiltersChange, onLocateMe, locateError }) {
+export default function FilterPanel({ salles, filters, onFiltersChange, onLocateMe, locateError, favoritesCount }) {
   const [linkCopied, setLinkCopied] = useState(false);
   const set = (patch) => onFiltersChange({ ...filters, ...patch });
 
@@ -55,6 +55,9 @@ export default function FilterPanel({ salles, filters, onFiltersChange, onLocate
   const activeTags = [];
   if (filters.query.trim()) {
     activeTags.push({ id: "query", label: `"${filters.query.trim()}"`, onRemove: () => set({ query: "" }) });
+  }
+  if (filters.favorisOnly) {
+    activeTags.push({ id: "favorisOnly", label: "Favoris", onRemove: () => set({ favorisOnly: false }) });
   }
   const collect = (group, groupKey, options) => {
     for (const key of filters[groupKey]) {
@@ -98,6 +101,15 @@ export default function FilterPanel({ salles, filters, onFiltersChange, onLocate
         </Link>
       </div>
       {locateError && <p className="filter-error">{locateError}</p>}
+
+      <label className="filter-favoris-toggle">
+        <input
+          type="checkbox"
+          checked={filters.favorisOnly}
+          onChange={(e) => set({ favorisOnly: e.target.checked })}
+        />
+        Voir uniquement mes favoris {favoritesCount > 0 ? `(${favoritesCount})` : ""}
+      </label>
 
       {activeTags.length > 0 && (
         <div className="filter-active-tags">

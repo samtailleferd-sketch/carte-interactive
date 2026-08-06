@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
 import GymImage from "./GymImage";
+import FavoriteButton from "./FavoriteButton";
 import { reportErrorMailto } from "../utils/report";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
 }
 
-export default function GymPanel({ salle, onClose }) {
+export default function GymPanel({ salle, onClose, isFavorite, onToggleFavorite }) {
   if (!salle) return null;
 
   const directionsUrl =
@@ -15,6 +16,11 @@ export default function GymPanel({ salle, onClose }) {
 
   return (
     <div className="gym-panel" role="dialog" aria-label={`Fiche ${salle.nom}`}>
+      <FavoriteButton
+        active={isFavorite}
+        onClick={() => onToggleFavorite(salle.id)}
+        className="gym-panel__favorite"
+      />
       <button className="gym-panel__close" onClick={onClose} aria-label="Fermer">
         ×
       </button>

@@ -308,6 +308,40 @@
   cursor: pointer;
 }
 
+.gym-panel__favorite {
+  position: absolute;
+  top: 12px;
+  right: 50px;
+}
+
+.favorite-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorite-button--active {
+  border-color: var(--accent-strong);
+}
+
+.filter-favoris-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  margin: 12px 0;
+}
+
 .gym-panel__header {
   display: flex;
   flex-direction: column;

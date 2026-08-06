@@ -1,8 +1,10 @@
 import { Link, useParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import GymImage from "../components/GymImage";
+import FavoriteButton from "../components/FavoriteButton";
 import { reportErrorMailto } from "../utils/report";
 import { resolveAssetUrl } from "../utils/assetUrl";
+import { useFavorites } from "../hooks/useFavorites";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -36,6 +38,7 @@ function TagList({ items, emptyLabel }) {
 export default function SalleDetailPage({ salles, loading }) {
   const { slug } = useParams();
   const salle = salles.find((s) => s.slug === slug);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   if (loading && !salle) {
     return (
@@ -78,6 +81,11 @@ export default function SalleDetailPage({ salles, loading }) {
           type={salle.imageType}
           nom={salle.nom}
           variant="hero"
+        />
+        <FavoriteButton
+          active={isFavorite(salle.id)}
+          onClick={() => toggleFavorite(salle.id)}
+          className="detail-hero__favorite"
         />
         <div className="detail-hero__overlay">
           <div className="detail-hero__badges">

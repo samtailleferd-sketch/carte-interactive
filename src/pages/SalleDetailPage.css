@@ -68,6 +68,12 @@
   font-size: 56px;
 }
 
+.detail-hero__favorite {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
 .detail-hero__overlay {
   position: absolute;
   bottom: 0;

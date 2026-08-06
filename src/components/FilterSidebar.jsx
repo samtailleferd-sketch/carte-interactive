@@ -8,6 +8,7 @@ export default function FilterSidebar({
   onToggleCollapsed,
   onLocateMe,
   locateError,
+  favoritesCount,
 }) {
   return (
     <aside className={`filter-sidebar ${collapsed ? "filter-sidebar--collapsed" : ""}`}>
@@ -31,6 +32,7 @@ export default function FilterSidebar({
             onFiltersChange={onFiltersChange}
             onLocateMe={onLocateMe}
             locateError={locateError}
+            favoritesCount={favoritesCount}
           />
         </div>
       )}

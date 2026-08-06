@@ -66,6 +66,7 @@ export function emptyFilters() {
     statuts: new Set(),
     niveaux: new Set(),
     pratiques: new Set(),
+    favorisOnly: false,
   };
 }
 
@@ -81,6 +82,7 @@ const PARAM_KEYS = {
   statuts: "st",
   niveaux: "ni",
   pratiques: "pr",
+  favorisOnly: "fav",
 };
 
 const SET_FILTER_KEYS = ["chaines", "streetlifting", "force", "statuts", "niveaux", "pratiques"];
@@ -91,6 +93,7 @@ export function filtersToParams(filters) {
   for (const key of SET_FILTER_KEYS) {
     if (filters[key].size) params.set(PARAM_KEYS[key], Array.from(filters[key]).join(","));
   }
+  if (filters.favorisOnly) params.set(PARAM_KEYS.favorisOnly, "1");
   return params;
 }
 
@@ -102,6 +105,7 @@ export function filtersFromParams(params) {
     const raw = params.get(PARAM_KEYS[key]);
     if (raw) filters[key] = new Set(raw.split(",").filter(Boolean));
   }
+  filters.favorisOnly = params.get(PARAM_KEYS.favorisOnly) === "1";
   return filters;
 }
 
@@ -113,11 +117,17 @@ export function hasActiveFilters(filters) {
       filters.force.size ||
       filters.statuts.size ||
       filters.niveaux.size ||
-      filters.pratiques.size
+      filters.pratiques.size ||
+      filters.favorisOnly
   );
 }
 
-export function matchesFilters(salle, filters) {
+// `favorites` (Set d'ids) est optionnel : seul le filtre "Favoris" en a
+// besoin, les autres écrans qui appellent matchesFilters sans favoris (s'il
+// y en avait) continueraient de fonctionner, favorisOnly étant alors ignoré.
+export function matchesFilters(salle, filters, favorites) {
+  if (filters.favorisOnly && !favorites?.has(salle.id)) return false;
+
   const q = normalize(filters.query);
   if (q) {
     const haystack = normalize(`${salle.nom} ${salle.ville} ${salle.adresse} ${salle.chaine}`);

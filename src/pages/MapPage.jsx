@@ -7,6 +7,7 @@ import FilterSidebar from "../components/FilterSidebar";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
 import AuthModal from "../components/AuthModal";
 import { useAuth } from "../hooks/useAuth";
+import { useFavorites } from "../hooks/useFavorites";
 import { emptyFilters, matchesFilters, filtersToParams, filtersFromParams } from "../utils/filters";
 import { ADMIN_EMAIL } from "../config";
 
@@ -20,6 +21,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authError, setAuthError] = useState("");
   const { user } = useAuth();
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
   // Un lien de connexion Supabase expiré/invalide redirige ici avec un
   // message d'erreur stocké par main.jsx (voir commentaire là-bas) — on
@@ -56,7 +58,10 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
     );
   };
 
-  const filtered = useMemo(() => salles.filter((s) => matchesFilters(s, filters)), [salles, filters]);
+  const filtered = useMemo(
+    () => salles.filter((s) => matchesFilters(s, filters, favorites)),
+    [salles, filters, favorites]
+  );
 
   const selectedSalle = salles.find((s) => s.id === selectedId) || null;
 
@@ -128,6 +133,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
           onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
           onLocateMe={handleLocateMe}
           locateError={locateError}
+          favoritesCount={favorites.size}
         />
 
         <div className="map-area">
@@ -143,7 +149,14 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
 
           {showZones && !selectedSalle && <ZonesLegend />}
 
-          {selectedSalle && <GymPanel salle={selectedSalle} onClose={() => onSelect(null)} />}
+          {selectedSalle && (
+            <GymPanel
+              salle={selectedSalle}
+              onClose={() => onSelect(null)}
+              isFavorite={isFavorite(selectedSalle.id)}
+              onToggleFavorite={toggleFavorite}
+            />
+          )}
 
           <MobileFilterDrawer
             salles={salles}
@@ -152,6 +165,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             resultCount={filtered.length}
             onLocateMe={handleLocateMe}
             locateError={locateError}
+            favoritesCount={favorites.size}
           />
 
           {!selectedSalle && !loading && filtered.length > 0 && (

@@ -9,6 +9,7 @@ export default function MobileFilterDrawer({
   resultCount,
   onLocateMe,
   locateError,
+  favoritesCount,
 }) {
   const [open, setOpen] = useState(false);
 
@@ -34,6 +35,7 @@ export default function MobileFilterDrawer({
               onFiltersChange={onFiltersChange}
               onLocateMe={onLocateMe}
               locateError={locateError}
+              favoritesCount={favoritesCount}
             />
           </div>
           <div className="mobile-filter-drawer__footer">
