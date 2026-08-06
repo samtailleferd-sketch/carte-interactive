@@ -89,6 +89,16 @@ export default function ProposeSallePage() {
     }
   };
 
+  // Un formulaire HTML soumet dès qu'on appuie sur Entrée dans un champ
+  // texte, même si tout n'est pas encore rempli — on bloque ça partout sauf
+  // dans le textarea (où Entrée doit rester un retour à la ligne normal) et
+  // sur le bouton d'envoi lui-même, seul déclencheur voulu.
+  const handleFormKeyDown = (e) => {
+    if (e.key === "Enter" && e.target.tagName !== "TEXTAREA" && e.target.type !== "submit") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="propose-page">
       <header className="detail-header">
@@ -126,7 +136,7 @@ export default function ProposeSallePage() {
               </p>
             </div>
 
-            <form className="propose-form" onSubmit={handleSubmit}>
+            <form className="propose-form" onSubmit={handleSubmit} onKeyDown={handleFormKeyDown}>
               <label>
                 Nom de la salle *
                 <input type="text" required value={nom} onChange={(e) => setNom(e.target.value)} />
