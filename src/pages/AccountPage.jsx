@@ -114,17 +114,22 @@ export default function AccountPage() {
         {!loading && user && (
           <>
             <div className="account-page__avatar-row">
-              {current.photo_url ? (
-                <img src={current.photo_url} alt="Photo de profil" className="account-page__avatar" />
-              ) : (
-                <div className="account-page__avatar account-page__avatar--placeholder" aria-hidden="true">
-                  {(current.prenom?.[0] || user.email[0]).toUpperCase()}
-                </div>
-              )}
-              <label className="account-page__avatar-upload">
-                {uploading ? "Envoi..." : "Changer la photo"}
-                <input type="file" accept="image/*" onChange={handlePhotoChange} hidden disabled={uploading} />
-              </label>
+              <div className="account-page__avatar-wrap">
+                {current.photo_url ? (
+                  <img src={current.photo_url} alt="Photo de profil" className="account-page__avatar" />
+                ) : (
+                  <div className="account-page__avatar account-page__avatar--placeholder" aria-hidden="true">
+                    {(current.prenom?.[0] || user.email[0]).toUpperCase()}
+                  </div>
+                )}
+                <label
+                  className="account-page__avatar-edit"
+                  aria-label={uploading ? "Envoi en cours" : "Changer la photo"}
+                >
+                  {uploading ? "…" : "✎"}
+                  <input type="file" accept="image/*" onChange={handlePhotoChange} hidden disabled={uploading} />
+                </label>
+              </div>
             </div>
             {uploadError && <p className="auth-modal__error">{uploadError}</p>}
 

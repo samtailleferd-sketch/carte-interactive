@@ -41,12 +41,27 @@
   color: var(--text-muted);
 }
 
-.account-page__avatar-upload {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-strong);
+.account-page__avatar-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.account-page__avatar-edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  text-decoration: underline;
 }
 
 .account-page__form {

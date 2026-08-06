@@ -83,6 +83,9 @@ export default function AuthModal({ onClose }) {
             <button type="submit" className="btn btn--primary auth-modal__submit" disabled={sending}>
               {sending ? "Envoi..." : "Recevoir un lien de connexion"}
             </button>
+            <button type="button" className="auth-modal__skip" onClick={onClose}>
+              Continuer sans compte
+            </button>
           </form>
         )}
 
