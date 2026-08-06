@@ -100,6 +100,32 @@
   margin: 0;
 }
 
+.detail-hero.detail-hero--logo {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+}
+
+.detail-hero--logo .gym-image--hero {
+  position: static;
+  height: 160px;
+}
+
+.detail-hero--logo .detail-hero__badges {
+  padding: 16px 20px 0;
+}
+
+.detail-hero--logo h1 {
+  padding: 0 20px;
+  margin: 10px 0 0;
+}
+
+.detail-hero--logo .detail-hero__ville {
+  padding: 0 20px 16px;
+  margin-top: 4px;
+}
+
 .detail-hero__ville {
   color: var(--accent-strong);
   font-weight: 600;

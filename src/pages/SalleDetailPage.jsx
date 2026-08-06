@@ -80,20 +80,20 @@ export default function SalleDetailPage({ salles, loading }) {
         </div>
       </header>
 
-      <div className="detail-hero">
-        <GymImage
-          src={salle.photoPrincipale}
-          alt={salle.imageAlt}
-          type={salle.imageType}
-          nom={salle.nom}
-          variant="hero"
-        />
-        <FavoriteButton
-          active={isFavorite(salle.id)}
-          onClick={() => toggleFavorite(salle.id)}
-          className="detail-hero__favorite"
-        />
-        <div className="detail-hero__overlay">
+      {salle.imageType === "logo" ? (
+        <div className="detail-hero detail-hero--logo">
+          <GymImage
+            src={salle.photoPrincipale}
+            alt={salle.imageAlt}
+            type={salle.imageType}
+            nom={salle.nom}
+            variant="hero"
+          />
+          <FavoriteButton
+            active={isFavorite(salle.id)}
+            onClick={() => toggleFavorite(salle.id)}
+            className="detail-hero__favorite"
+          />
           <div className="detail-hero__badges">
             <StatusBadge statut={salle.statut} />
             {salle.niveau_pertinence && <span className="badge badge--niveau">{salle.niveau_pertinence}</span>}
@@ -101,7 +101,30 @@ export default function SalleDetailPage({ salles, loading }) {
           <h1>{salle.nom}</h1>
           <p className="detail-hero__ville">{salle.ville}</p>
         </div>
-      </div>
+      ) : (
+        <div className="detail-hero">
+          <GymImage
+            src={salle.photoPrincipale}
+            alt={salle.imageAlt}
+            type={salle.imageType}
+            nom={salle.nom}
+            variant="hero"
+          />
+          <FavoriteButton
+            active={isFavorite(salle.id)}
+            onClick={() => toggleFavorite(salle.id)}
+            className="detail-hero__favorite"
+          />
+          <div className="detail-hero__overlay">
+            <div className="detail-hero__badges">
+              <StatusBadge statut={salle.statut} />
+              {salle.niveau_pertinence && <span className="badge badge--niveau">{salle.niveau_pertinence}</span>}
+            </div>
+            <h1>{salle.nom}</h1>
+            <p className="detail-hero__ville">{salle.ville}</p>
+          </div>
+        </div>
+      )}
 
       <div className="detail-content">
         {isRealLink(salle.instagram) && instagramHandle(salle.instagram) && (
