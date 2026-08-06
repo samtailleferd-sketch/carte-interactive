@@ -1,0 +1,5 @@
+{
+  "appId": "com.streetmap.app",
+  "appName": "Street Map",
+  "webDir": "dist-capacitor"
+}

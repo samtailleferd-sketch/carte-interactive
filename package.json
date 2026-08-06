@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:capacitor": "BUILD_TARGET=capacitor vite build --outDir dist-capacitor",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@supabase/supabase-js": "^2.112.0",
     "leaflet": "^1.9.4",
     "papaparse": "^5.5.4",

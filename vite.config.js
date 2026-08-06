@@ -5,9 +5,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 // GitHub Pages sert ce projet sous /carte-interactive/ (pas à la racine du
 // domaine), il faut donc indiquer ce préfixe à Vite pour que les assets
-// buildés (JS/CSS) soient référencés au bon endroit.
+// buildés (JS/CSS) soient référencés au bon endroit. Le build Capacitor
+// (app native, voir capacitor.config.ts) sert les fichiers depuis la racine
+// de son propre bac à sable — d'où ce préfixe conditionnel, sans toucher au
+// build GitHub Pages par défaut (`npm run build`, celui utilisé par le
+// déploiement CI).
 export default defineConfig({
-  base: '/carte-interactive/',
+  base: process.env.BUILD_TARGET === 'capacitor' ? '/' : '/carte-interactive/',
   plugins: [
     react(),
     // manifest.json et les meta tags iOS de index.html sont déjà écrits à

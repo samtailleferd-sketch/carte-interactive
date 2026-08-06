@@ -2,3 +2,19 @@ node_modules
 dist
 dist*
 .DS_Store
+
+# Capacitor (voir plan "Street Map sur téléphone") — le dossier natif
+# lui-même est versionné (config Xcode/Gradle personnalisée), mais pas les
+# artefacts de build ni les assets web synchronisés (régénérés à chaque
+# `npx cap sync` depuis dist-capacitor, donc redondants avec le code source).
+android/.gradle
+android/app/build
+android/app/src/main/assets/public
+android/build
+android/local.properties
+ios/App/Pods
+ios/App/App/public
+ios/App/build
+ios/DerivedData
+*.xcuserstate
+xcuserdata/
