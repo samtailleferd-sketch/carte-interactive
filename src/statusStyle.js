@@ -7,10 +7,10 @@ export function statusVariant(statut) {
 }
 
 export const VARIANT_COLORS = {
-  partner: "#ffb703",
+  partner: "#3d7fff",
   verified: "#4cc995",
   unverified: "#8a8d98",
-  test: "#ff4d2e",
+  test: "#ef4136",
 };
 
 export function statusColor(statut) {

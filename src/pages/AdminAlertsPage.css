@@ -52,7 +52,7 @@
 .admin-alerts-page__item-error {
   margin: 10px 0 0;
   font-size: 13px;
-  color: #ff4d2e;
+  color: var(--accent);
 }
 
 .admin-alerts-page__modal-backdrop {

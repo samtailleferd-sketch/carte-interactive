@@ -110,8 +110,8 @@
 
 .filter-action-btn--full {
   flex-basis: 100%;
-  background: rgba(255, 77, 46, 0.1);
-  border-color: rgba(255, 77, 46, 0.35);
+  background: rgba(239, 65, 54, 0.1);
+  border-color: rgba(239, 65, 54, 0.35);
   color: var(--accent-strong);
 }
 
@@ -128,8 +128,8 @@
   font-size: 12px;
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(255, 77, 46, 0.12);
-  border: 1px solid rgba(255, 77, 46, 0.35);
+  background: rgba(239, 65, 54, 0.12);
+  border: 1px solid rgba(239, 65, 54, 0.35);
   color: var(--accent-strong);
   cursor: pointer;
 }

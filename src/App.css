@@ -383,8 +383,8 @@
   font-size: 12px;
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(255, 77, 46, 0.12);
-  border: 1px solid rgba(255, 77, 46, 0.35);
+  background: rgba(239, 65, 54, 0.12);
+  border: 1px solid rgba(239, 65, 54, 0.35);
   color: var(--accent-strong);
 }
 
@@ -410,9 +410,9 @@
 }
 
 .btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #14090a;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #04101f;
 }
 
 .btn--ghost {
@@ -433,7 +433,7 @@
 }
 
 .gym-panel__detail-link:hover {
-  background: rgba(255, 77, 46, 0.1);
+  background: rgba(239, 65, 54, 0.1);
 }
 
 .gym-panel__disclaimer {
@@ -457,15 +457,15 @@
 }
 
 .badge--partner {
-  background: rgba(255, 183, 3, 0.15);
-  color: var(--gold);
-  border: 1px solid rgba(255, 183, 3, 0.4);
+  background: rgba(61, 127, 255, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(61, 127, 255, 0.4);
 }
 
 .badge--test {
-  background: rgba(255, 77, 46, 0.15);
+  background: rgba(239, 65, 54, 0.15);
   color: var(--accent-strong);
-  border: 1px solid rgba(255, 77, 46, 0.4);
+  border: 1px solid rgba(239, 65, 54, 0.4);
 }
 
 .badge--unverified {

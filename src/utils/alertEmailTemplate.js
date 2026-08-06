@@ -25,7 +25,7 @@ export function alertEmailHtml(salle, unsubscribeUrl = "#") {
           <table role="presentation" width="100%" style="max-width:480px;background:#17171c;border-radius:12px;overflow:hidden;">
             <tr>
               <td style="padding:24px 24px 0;">
-                <span style="font-size:20px;font-weight:700;color:#ff4d2e;">Street</span><span style="font-size:20px;font-weight:700;color:#e8e8ec;">Map</span>
+                <span style="font-size:20px;font-weight:700;color:#ef4136;">Street</span><span style="font-size:20px;font-weight:700;color:#e8e8ec;">Map</span>
               </td>
             </tr>
             <tr>
@@ -60,7 +60,7 @@ export function alertEmailHtml(salle, unsubscribeUrl = "#") {
             </tr>
             <tr>
               <td style="padding:20px 24px 0;" align="center">
-                <a href="${salleUrl}" style="display:inline-block;background:#ff4d2e;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Voir la salle</a>
+                <a href="${salleUrl}" style="display:inline-block;background:#ef4136;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 28px;border-radius:8px;">Voir la salle</a>
               </td>
             </tr>
             <tr>
