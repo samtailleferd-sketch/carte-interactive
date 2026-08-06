@@ -8,6 +8,8 @@ import "./pages/ProposeSallePage.css";
 import "./pages/AccountPage.css";
 import "./pages/AdminAlertsPage.css";
 import "./components/AuthModal.css";
+import "./components/Lightbox.css";
+import "./components/ReportModal.css";
 import MapPage from "./pages/MapPage";
 import SalleDetailPage from "./pages/SalleDetailPage";
 import ProposeSallePage from "./pages/ProposeSallePage";

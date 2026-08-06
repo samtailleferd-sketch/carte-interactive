@@ -192,6 +192,25 @@
   display: block;
   position: relative;
   text-decoration: none;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.detail-instagram-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.detail-instagram-link:hover {
+  color: var(--text);
 }
 
 .detail-gallery__item {
@@ -246,9 +265,14 @@
 .detail-report-link {
   display: inline-block;
   margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-size: 12px;
   color: var(--text-muted);
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .detail-back-bottom {

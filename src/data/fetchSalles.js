@@ -76,6 +76,7 @@ function normalize(row) {
     email: row.email || "",
     conditionsAcces: row.conditions_acces || "",
     tarifs: row.tarifs || "",
+    prixSeance: row.prix_seance || "",
     coachingDisponible: row.coaching_disponible || "",
     communaute: row.communaute || "",
     dateDerniereVerification: row.date_derniere_verification || "",

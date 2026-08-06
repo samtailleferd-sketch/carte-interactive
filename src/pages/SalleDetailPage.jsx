@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import GymImage from "../components/GymImage";
 import FavoriteButton from "../components/FavoriteButton";
-import { reportErrorMailto } from "../utils/report";
+import Lightbox from "../components/Lightbox";
+import ReportModal from "../components/ReportModal";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useFavorites } from "../hooks/useFavorites";
+import { instagramHandle } from "../utils/instagram";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
@@ -39,6 +42,8 @@ export default function SalleDetailPage({ salles, loading }) {
   const { slug } = useParams();
   const salle = salles.find((s) => s.slug === slug);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [showReport, setShowReport] = useState(false);
 
   if (loading && !salle) {
     return (
@@ -61,6 +66,7 @@ export default function SalleDetailPage({ salles, loading }) {
 
   const directionsUrl =
     salle.google_maps_url || `https://www.google.com/maps/dir/?api=1&destination=${salle.lat},${salle.lng}`;
+  const photosOnly = (salle.photos || []).filter((p) => !(p.type === "video" && p.lienExterne));
 
   return (
     <div className="detail-page">
@@ -98,6 +104,17 @@ export default function SalleDetailPage({ salles, loading }) {
       </div>
 
       <div className="detail-content">
+        {isRealLink(salle.instagram) && instagramHandle(salle.instagram) && (
+          <a
+            className="detail-instagram-link"
+            href={salle.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {instagramHandle(salle.instagram)}
+          </a>
+        )}
+
         <div className="detail-actions">
           <a className="btn btn--primary" href={directionsUrl} target="_blank" rel="noopener noreferrer">
             Itinéraire
@@ -107,14 +124,9 @@ export default function SalleDetailPage({ salles, loading }) {
               Site web
             </a>
           )}
-          {isRealLink(salle.instagram) && (
-            <a className="btn btn--ghost" href={salle.instagram} target="_blank" rel="noopener noreferrer">
-              Instagram
-            </a>
-          )}
           {isRealLink(salle.reservation) && (
             <a className="btn btn--ghost" href={salle.reservation} target="_blank" rel="noopener noreferrer">
-              Réserver
+              Réserver une séance
             </a>
           )}
         </div>
@@ -151,10 +163,17 @@ export default function SalleDetailPage({ salles, loading }) {
             <InfoRow label="Email" value={salle.email} />
             <InfoRow label="Conditions d'accès" value={salle.conditionsAcces} />
             <InfoRow label="Tarifs" value={salle.tarifs} />
+            <InfoRow label="Prix à la séance (sans abonnement)" value={salle.prixSeance} />
           </div>
-          {!salle.adresse && !salle.horaires && !salle.telephone && !salle.email && !salle.conditionsAcces && !salle.tarifs && (
-            <p className="detail-section__empty">Informations pratiques pas encore renseignées.</p>
-          )}
+          {!salle.adresse &&
+            !salle.horaires &&
+            !salle.telephone &&
+            !salle.email &&
+            !salle.conditionsAcces &&
+            !salle.tarifs &&
+            !salle.prixSeance && (
+              <p className="detail-section__empty">Informations pratiques pas encore renseignées.</p>
+            )}
         </section>
 
         {(salle.coachingDisponible || salle.communaute) && (
@@ -173,13 +192,42 @@ export default function SalleDetailPage({ salles, loading }) {
             <div className="detail-gallery">
               {salle.photos.map((photo) => {
                 const isVideo = photo.type === "video" && photo.lienExterne;
+                const caption = (photo.legende || photo.credit) && (
+                  <span className="detail-gallery__caption">
+                    {[photo.legende, photo.credit && `© ${photo.credit}`].filter(Boolean).join(" — ")}
+                  </span>
+                );
+
+                if (isVideo) {
+                  return (
+                    <a
+                      key={photo.url}
+                      href={photo.lienExterne}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="detail-gallery__figure"
+                    >
+                      <img
+                        src={resolveAssetUrl(photo.url)}
+                        alt={photo.alt || `${salle.nom} - vidéo`}
+                        loading="lazy"
+                        className="detail-gallery__item"
+                      />
+                      <span className="detail-gallery__play" aria-hidden="true">
+                        ▶
+                      </span>
+                      {caption}
+                    </a>
+                  );
+                }
+
+                const photoIndex = photosOnly.indexOf(photo);
                 return (
-                  <a
+                  <button
                     key={photo.url}
-                    href={isVideo ? photo.lienExterne : resolveAssetUrl(photo.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    type="button"
                     className="detail-gallery__figure"
+                    onClick={() => setLightboxIndex(photoIndex)}
                   >
                     <img
                       src={resolveAssetUrl(photo.url)}
@@ -187,17 +235,8 @@ export default function SalleDetailPage({ salles, loading }) {
                       loading="lazy"
                       className="detail-gallery__item"
                     />
-                    {isVideo && (
-                      <span className="detail-gallery__play" aria-hidden="true">
-                        ▶
-                      </span>
-                    )}
-                    {(photo.legende || photo.credit) && (
-                      <span className="detail-gallery__caption">
-                        {[photo.legende, photo.credit && `© ${photo.credit}`].filter(Boolean).join(" — ")}
-                      </span>
-                    )}
-                  </a>
+                    {caption}
+                  </button>
                 );
               })}
             </div>
@@ -216,15 +255,21 @@ export default function SalleDetailPage({ salles, loading }) {
           <p className="detail-disclaimer">
             Informations non garanties par la FNSL Sud Est — susceptibles d'évoluer, à vérifier avant de vous déplacer.
           </p>
-          <a href={reportErrorMailto(salle)} className="detail-report-link">
+          <button type="button" className="detail-report-link" onClick={() => setShowReport(true)}>
             Signaler une erreur sur cette fiche
-          </a>
+          </button>
         </section>
 
         <Link to="/" className="btn btn--full detail-back-bottom">
           ← Retour à la carte
         </Link>
       </div>
+
+      {lightboxIndex !== null && (
+        <Lightbox photos={photosOnly} startIndex={lightboxIndex} onClose={() => setLightboxIndex(null)} />
+      )}
+
+      {showReport && <ReportModal salle={salle} onClose={() => setShowReport(false)} />}
     </div>
   );
 }
