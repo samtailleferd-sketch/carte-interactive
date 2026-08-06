@@ -106,7 +106,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             Zones FNSL
           </label>
           {user?.email === ADMIN_EMAIL && (
-            <Link to="/admin/alertes" className="app__account-link">
+            <Link to="/admin" className="app__account-link">
               Admin
             </Link>
           )}

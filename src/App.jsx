@@ -14,7 +14,9 @@ import MapPage from "./pages/MapPage";
 import SalleDetailPage from "./pages/SalleDetailPage";
 import ProposeSallePage from "./pages/ProposeSallePage";
 import AccountPage from "./pages/AccountPage";
+import AdminPage from "./pages/AdminPage";
 import AdminAlertsPage from "./pages/AdminAlertsPage";
+import AdminPropositionsPage from "./pages/AdminPropositionsPage";
 import { fetchSalles } from "./data/fetchSalles";
 
 const DEFAULT_MAP_VIEW = { center: [44.6, 5.6], zoom: 7 };
@@ -49,7 +51,9 @@ function App() {
       <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
       <Route path="/proposer" element={<ProposeSallePage />} />
       <Route path="/compte" element={<AccountPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/alertes" element={<AdminAlertsPage />} />
+      <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
     </Routes>
   );
 }
