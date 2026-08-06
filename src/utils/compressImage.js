@@ -5,7 +5,7 @@
 const MAX_DIMENSION = 800;
 const JPEG_QUALITY = 0.82;
 
-export function compressImage(file) {
+export function compressImage(file, filename = "avatar.jpg") {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
@@ -35,7 +35,7 @@ export function compressImage(file) {
             reject(new Error("Compression impossible"));
             return;
           }
-          resolve(new File([blob], "avatar.jpg", { type: "image/jpeg" }));
+          resolve(new File([blob], filename, { type: "image/jpeg" }));
         },
         "image/jpeg",
         JPEG_QUALITY
