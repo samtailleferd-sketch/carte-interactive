@@ -21,11 +21,19 @@ export default defineConfig({
     // téléphone"). `autoUpdate` recharge automatiquement la nouvelle
     // version dès qu'elle est détectée, pour ne jamais servir un ancien
     // build en cache après un déploiement.
+    //
+    // Stratégie `injectManifest` (plutôt que `generateSW`) : on fournit
+    // notre propre service worker (src/sw.js) pour pouvoir y écouter les
+    // événements `push`/`notificationclick` — Workbox n'a pas cette
+    // fonctionnalité, `generateSW` ne permet pas d'ajouter du code custom.
     VitePWA({
       manifest: false,
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      workbox: {
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
       },
     }),

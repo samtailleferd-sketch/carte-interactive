@@ -6,6 +6,13 @@ import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
 import { compressImage } from "../utils/compressImage";
 import { fetchSalles } from "../data/fetchSalles";
+import {
+  isPushSupported,
+  isRunningAsInstalledApp,
+  isIOS,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from "../utils/pushNotifications";
 
 const DELETE_EMAIL = "tailleferdsam@gmail.com";
 const AVATAR_BUCKET = "avatars";
@@ -25,10 +32,43 @@ export default function AccountPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [salles, setSalles] = useState([]);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState("");
 
   useEffect(() => {
     fetchSalles().then(setSalles);
   }, []);
+
+  useEffect(() => {
+    if (!user || !isPushSupported()) return;
+    navigator.serviceWorker.getRegistration().then(async (registration) => {
+      const subscription = await registration?.pushManager.getSubscription();
+      setPushSubscribed(!!subscription);
+    });
+  }, [user]);
+
+  const handleTogglePush = async (e) => {
+    const wantsSubscribed = e.target.checked;
+    setPushError("");
+    setPushBusy(true);
+    try {
+      if (wantsSubscribed) {
+        await subscribeToPush(user.id);
+      } else {
+        await unsubscribeFromPush();
+      }
+      setPushSubscribed(wantsSubscribed);
+    } catch (err) {
+      setPushError(
+        err?.name === "NotAllowedError"
+          ? "Notifications refusées — active-les dans les réglages de ton navigateur/téléphone pour ce site."
+          : `Impossible d'activer les notifications : ${err.message}`
+      );
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const current = form || profile || {};
   const favoriteSalles = salles.filter((s) => favorites.has(s.id));
@@ -218,6 +258,26 @@ export default function AccountPage() {
                 />
                 Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL
               </label>
+
+              {isPushSupported() && isIOS() && !isRunningAsInstalledApp() && (
+                <p className="account-page__hint">
+                  Pour recevoir des notifications push, installe d'abord Street Map sur ton écran d'accueil
+                  (Safari → icône de partage → "Sur l'écran d'accueil").
+                </p>
+              )}
+
+              {isPushSupported() && (!isIOS() || isRunningAsInstalledApp()) && (
+                <label className="account-page__checkbox">
+                  <input
+                    type="checkbox"
+                    checked={pushSubscribed}
+                    disabled={pushBusy}
+                    onChange={handleTogglePush}
+                  />
+                  Recevoir une notification push quand une nouvelle salle est publiée dans ma région FNSL
+                </label>
+              )}
+              {pushError && <p className="auth-modal__error">{pushError}</p>}
 
               <label className="account-page__checkbox">
                 <input

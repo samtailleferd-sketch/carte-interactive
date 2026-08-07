@@ -28,3 +28,9 @@ export const SITE_URL = "https://samtailleferd-sketch.github.io/carte-interactiv
 // barrière de sécurité, RLS + vérification du JWT ne peuvent pas être
 // contournées depuis le navigateur).
 export const ADMIN_EMAIL = "tailleferdsam@gmail.com";
+
+// Clé publique VAPID (identité du serveur d'envoi Web Push) — sans risque à
+// exposer côté client, c'est sa contrepartie privée (secret Edge Function
+// VAPID_PRIVATE_KEY, jamais dans ce fichier) qui protège l'envoi réel.
+export const VAPID_PUBLIC_KEY =
+  "BMcuyWMpGilqqEICjFip5hPCgEaPLXXeY80jvq9pVVquX5tIxB2qATTVNk__aSWnPjJMR23QXHQLZIlxUCpRDA8";

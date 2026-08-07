@@ -70,30 +70,48 @@ export default function AdminAlertsPage() {
   const handleSendClick = async (salle) => {
     const region = regionFromAddress(salle.adresse);
     setPendingSalleId(salle.id);
-    const { data, error } = await supabase.functions.invoke("send-salle-alert", {
-      body: { salle: salleAlertPayload(salle), target_region: region, dry_run: true },
-    });
+    const body = { salle: salleAlertPayload(salle), target_region: region, dry_run: true };
+    const [emailRes, pushRes] = await Promise.all([
+      supabase.functions.invoke("send-salle-alert", { body }),
+      supabase.functions.invoke("send-salle-push", { body }),
+    ]);
     setPendingSalleId(null);
-    if (error) {
-      setResultBySalleId((prev) => ({ ...prev, [salle.id]: { error: error.message } }));
+    if (emailRes.error) {
+      setResultBySalleId((prev) => ({ ...prev, [salle.id]: { error: emailRes.error.message } }));
       return;
     }
-    setConfirming({ salle, region, count: data.recipient_count });
+    setConfirming({
+      salle,
+      region,
+      emailCount: emailRes.data.recipient_count,
+      pushCount: pushRes.data?.recipient_count ?? 0,
+    });
   };
 
   const handleConfirmSend = async () => {
     const { salle, region } = confirming;
     setPendingSalleId(salle.id);
     setConfirming(null);
-    const { data, error } = await supabase.functions.invoke("send-salle-alert", {
-      body: { salle: salleAlertPayload(salle), target_region: region },
-    });
+    const body = { salle: salleAlertPayload(salle), target_region: region };
+    const [emailRes, pushRes] = await Promise.all([
+      supabase.functions.invoke("send-salle-alert", { body }),
+      supabase.functions.invoke("send-salle-push", { body }),
+    ]);
     setPendingSalleId(null);
-    if (error) {
-      setResultBySalleId((prev) => ({ ...prev, [salle.id]: { error: error.message } }));
+    if (emailRes.error) {
+      setResultBySalleId((prev) => ({ ...prev, [salle.id]: { error: emailRes.error.message } }));
       return;
     }
-    setResultBySalleId((prev) => ({ ...prev, [salle.id]: data }));
+    const data = emailRes.data;
+    setResultBySalleId((prev) => ({
+      ...prev,
+      [salle.id]: {
+        ...data,
+        push_recipient_count: pushRes.data?.recipient_count,
+        push_error_count: pushRes.data?.error_count,
+        push_error: pushRes.error?.message,
+      },
+    }));
     setSentBySalleId((prev) => ({
       ...prev,
       [salle.id]: { salle_id: salle.id, sent_at: new Date().toISOString(), recipient_count: data.recipient_count },
@@ -113,7 +131,7 @@ export default function AdminAlertsPage() {
       </header>
 
       <div className="admin-alerts-page__content">
-        <h1>Alertes email</h1>
+        <h1>Alertes (email + push)</h1>
 
         {authLoading && <p className="account-page__hint">Chargement...</p>}
 
@@ -168,8 +186,14 @@ export default function AdminAlertsPage() {
                   {result?.error && <p className="admin-alerts-page__item-error">Erreur : {result.error}</p>}
                   {result && !result.error && (
                     <p className="admin-alerts-page__item-sent">
-                      Envoyée à {result.recipient_count} destinataire{result.recipient_count > 1 ? "s" : ""}
-                      {result.error_count > 0 ? ` (${result.error_count} échec(s))` : ""}.
+                      Email : {result.recipient_count} destinataire{result.recipient_count > 1 ? "s" : ""}
+                      {result.error_count > 0 ? ` (${result.error_count} échec(s))` : ""}. Push :{" "}
+                      {result.push_error
+                        ? `erreur (${result.push_error})`
+                        : `${result.push_recipient_count ?? 0} destinataire${
+                            (result.push_recipient_count ?? 0) > 1 ? "s" : ""
+                          }${result.push_error_count > 0 ? ` (${result.push_error_count} échec(s))` : ""}`}
+                      .
                     </p>
                   )}
                 </li>
@@ -198,11 +222,11 @@ export default function AdminAlertsPage() {
         <div className="admin-alerts-page__modal-backdrop" onClick={() => setConfirming(null)}>
           <div className="admin-alerts-page__confirm" onClick={(e) => e.stopPropagation()}>
             <p>
-              {confirming.count === 0
-                ? "Aucun abonné ne recevra cet email (aucune correspondance de région)."
-                : `${confirming.count} abonné${confirming.count > 1 ? "s" : ""} recevr${
-                    confirming.count > 1 ? "ont" : "a"
-                  } cet email.`}
+              {confirming.emailCount === 0 && confirming.pushCount === 0
+                ? "Aucun abonné (email ou push) ne recevra cette alerte pour cette région."
+                : `${confirming.emailCount} abonné${confirming.emailCount > 1 ? "s" : ""} email et ${
+                    confirming.pushCount
+                  } abonné${confirming.pushCount > 1 ? "s" : ""} push recevront cette alerte.`}
             </p>
             <div className="admin-alerts-page__item-actions">
               <button type="button" className="btn" onClick={() => setConfirming(null)}>
