@@ -100,6 +100,8 @@ export default function GymMap({ salles, selectedId, onSelect, showZones, initia
           key={salle.id}
           position={[salle.lat, salle.lng]}
           icon={markerIcon(salle.statut, salle.id === selectedId)}
+          alt={salle.nom}
+          title={salle.nom}
           eventHandlers={{ click: () => onSelect(salle.id) }}
         />
       ))}
