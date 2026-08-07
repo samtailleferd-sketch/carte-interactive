@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { PENDING_CONSENT_KEY } from "../hooks/useAuth";
+import { SITE_URL } from "../config";
 
 const STEP_EMAIL = "email";
 const STEP_SENT = "sent";
@@ -33,7 +34,12 @@ export default function AuthModal({ onClose }) {
     );
     const { error: sendError } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      // Sans ce champ, Supabase retombe sur le "Site URL" configuré côté
+      // dashboard (racine du domaine GitHub Pages) plutôt que le chemin réel
+      // de l'app (/carte-interactive/) — le lien reçu par email atterrissait
+      // sur un 404 GitHub Pages, la connexion échouait silencieusement pour
+      // tout le monde. Découvert en testant les notifications push ce soir.
+      options: { shouldCreateUser: true, emailRedirectTo: SITE_URL },
     });
     setSending(false);
     if (sendError) {
