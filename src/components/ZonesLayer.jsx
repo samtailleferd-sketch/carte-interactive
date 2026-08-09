@@ -1,7 +1,12 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GeoJSON } from "react-leaflet";
-import departements from "../data/departements.json";
 import { zoneForDepartment } from "../data/fnslZones";
+
+// Contours des départements (556 Ko) servis comme asset statique plutôt
+// qu'importés dans le JS : ce fichier ne concerne que l'affichage des zones
+// FNSL (calque optionnel), il n'a aucune raison d'alourdir et de bloquer le
+// parsing du bundle principal chargé par tout le monde dès la page carte.
+const DEPARTEMENTS_URL = `${import.meta.env.BASE_URL}departements.json`;
 
 const UNASSIGNED_COLOR = "#5f6068";
 
@@ -57,7 +62,23 @@ function popupContent(feature) {
 }
 
 export default function ZonesLayer() {
-  const data = useMemo(() => prepareZonesData(departements), []);
+  const [departements, setDepartements] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(DEPARTEMENTS_URL)
+      .then((res) => res.json())
+      .then((geojson) => {
+        if (!cancelled) setDepartements(geojson);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const data = useMemo(() => (departements ? prepareZonesData(departements) : null), [departements]);
+
+  if (!data) return null;
 
   return (
     <GeoJSON

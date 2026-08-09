@@ -12,6 +12,23 @@ import { VitePWA } from 'vite-plugin-pwa'
 // déploiement CI).
 export default defineConfig({
   base: process.env.BUILD_TARGET === 'capacitor' ? '/' : '/carte-interactive/',
+  build: {
+    rollupOptions: {
+      output: {
+        // Sépare les grosses dépendances tierces (peu susceptibles de
+        // changer d'un déploiement à l'autre) du code de l'app lui-même —
+        // les visiteurs qui reviennent après une mise à jour ne
+        // retéléchargent alors que le petit chunk applicatif, pas
+        // React/Leaflet/Supabase en entier à chaque fois.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('react-router') || id.includes('/react/') || id.includes('/react-dom/')) return 'vendor-react';
+          if (id.includes('leaflet')) return 'vendor-leaflet';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     // manifest.json et les meta tags iOS de index.html sont déjà écrits à
@@ -34,7 +51,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,ico,json}'],
       },
     }),
   ],

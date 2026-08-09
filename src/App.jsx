@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
@@ -11,14 +11,18 @@ import "./components/AuthModal.css";
 import "./components/Lightbox.css";
 import "./components/ReportModal.css";
 import MapPage from "./pages/MapPage";
-import SalleDetailPage from "./pages/SalleDetailPage";
-import ProposeSallePage from "./pages/ProposeSallePage";
-import ReferencerSallePage from "./pages/ReferencerSallePage";
-import AccountPage from "./pages/AccountPage";
-import AdminPage from "./pages/AdminPage";
-import AdminAlertsPage from "./pages/AdminAlertsPage";
-import AdminPropositionsPage from "./pages/AdminPropositionsPage";
 import { fetchSalles } from "./data/fetchSalles";
+
+// Chargées à la demande (pas dans le bundle initial) : la carte ("/") est la
+// seule page vue par l'immense majorité des visiteurs, pas besoin d'alourdir
+// son chargement avec le code des fiches salle, formulaires ou écrans admin.
+const SalleDetailPage = lazy(() => import("./pages/SalleDetailPage"));
+const ProposeSallePage = lazy(() => import("./pages/ProposeSallePage"));
+const ReferencerSallePage = lazy(() => import("./pages/ReferencerSallePage"));
+const AccountPage = lazy(() => import("./pages/AccountPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+const AdminAlertsPage = lazy(() => import("./pages/AdminAlertsPage"));
+const AdminPropositionsPage = lazy(() => import("./pages/AdminPropositionsPage"));
 
 const DEFAULT_MAP_VIEW = { center: [44.6, 5.6], zoom: 7 };
 
@@ -35,28 +39,30 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <MapPage
-            salles={salles}
-            loading={loading}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            mapView={mapView}
-            onMapViewChange={setMapView}
-          />
-        }
-      />
-      <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
-      <Route path="/proposer" element={<ProposeSallePage />} />
-      <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
-      <Route path="/compte" element={<AccountPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/admin/alertes" element={<AdminAlertsPage />} />
-      <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
-    </Routes>
+    <Suspense fallback={<div className="detail-page detail-page--state"><p>Chargement...</p></div>}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MapPage
+              salles={salles}
+              loading={loading}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              mapView={mapView}
+              onMapViewChange={setMapView}
+            />
+          }
+        />
+        <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
+        <Route path="/proposer" element={<ProposeSallePage />} />
+        <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
+        <Route path="/compte" element={<AccountPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/alertes" element={<AdminAlertsPage />} />
+        <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
+      </Routes>
+    </Suspense>
   );
 }
 
