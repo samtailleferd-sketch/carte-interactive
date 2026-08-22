@@ -44,8 +44,8 @@ export default function ReferencerSallePage() {
               référencer votre établissement avec des informations fiables et à jour.
             </p>
             <p>
-              Le formulaire prend environ 5 à 10 minutes. Aucun champ n'est obligatoire à l'exception du nom et de la
-              ville, mais plus les informations sont complètes, meilleure sera votre fiche. Les informations sont
+              Le formulaire prend environ 5 à 10 minutes. Plus les informations sont complètes (équipements, photos...),
+              meilleure sera votre fiche et plus les pratiquants pourront se projeter chez vous. Les informations sont
               vérifiées avant publication — l'envoi de ce formulaire ne garantit pas une publication immédiate.
             </p>
           </div>

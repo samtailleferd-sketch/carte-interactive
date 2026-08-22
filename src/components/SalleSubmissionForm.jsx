@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../hooks/useAuth";
 import { compressImage } from "../utils/compressImage";
 
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 10;
 const PROPOSITIONS_BUCKET = "propositions";
 
 // Vocabulaire proche de STREETLIFTING_FILTERS/FORCE_FILTERS (src/utils/filters.js)
@@ -77,7 +77,6 @@ export default function SalleSubmissionForm({
   const [reservationUrl, setReservationUrl] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [chaine, setChaine] = useState("");
-  const [descriptionCourte, setDescriptionCourte] = useState("");
   const [equipementsStreetlifting, setEquipementsStreetlifting] = useState(new Set());
   const [equipementsForce, setEquipementsForce] = useState(new Set());
   const [magnesieAutorisee, setMagnesieAutorisee] = useState(false);
@@ -105,7 +104,6 @@ export default function SalleSubmissionForm({
     setReservationUrl("");
     setGoogleMapsUrl("");
     setChaine("");
-    setDescriptionCourte("");
     setEquipementsStreetlifting(new Set());
     setEquipementsForce(new Set());
     setMagnesieAutorisee(false);
@@ -184,7 +182,6 @@ export default function SalleSubmissionForm({
           reservation_url: reservationUrl.trim() || null,
           google_maps_url: googleMapsUrl.trim() || null,
           chaine: chaine.trim() || null,
-          description_courte: descriptionCourte.trim() || null,
           equipements_streetlifting: Array.from(equipementsStreetlifting).join(", ") || null,
           equipements_force: Array.from(equipementsForce).join(", ") || null,
           magnesie_autorisee: magnesieAutorisee,
@@ -251,35 +248,36 @@ export default function SalleSubmissionForm({
       </label>
 
       <label>
-        Adresse
-        <input type="text" value={adresse} onChange={(e) => setAdresse(e.target.value)} />
+        Adresse{extended ? " *" : ""}
+        <input type="text" required={extended} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
       </label>
 
       {extended && (
         <label>
-          Code postal
-          <input type="text" value={codePostal} onChange={(e) => setCodePostal(e.target.value)} />
+          Code postal *
+          <input type="text" required value={codePostal} onChange={(e) => setCodePostal(e.target.value)} />
         </label>
       )}
 
       {extended && (
         <label>
-          Téléphone
-          <input type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+          Téléphone *
+          <input type="tel" required value={telephone} onChange={(e) => setTelephone(e.target.value)} />
         </label>
       )}
 
       {extended && (
         <label>
-          Email de contact
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          Email de contact *
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
       )}
 
       <label>
-        Instagram
+        Instagram{extended ? " *" : ""}
         <input
           type="text"
+          required={extended}
           placeholder="https://instagram.com/..."
           value={instagram}
           onChange={(e) => setInstagram(e.target.value)}
@@ -287,8 +285,14 @@ export default function SalleSubmissionForm({
       </label>
 
       <label>
-        Site web
-        <input type="text" placeholder="https://..." value={siteWeb} onChange={(e) => setSiteWeb(e.target.value)} />
+        Site web{extended ? " *" : ""}
+        <input
+          type="text"
+          required={extended}
+          placeholder="https://..."
+          value={siteWeb}
+          onChange={(e) => setSiteWeb(e.target.value)}
+        />
       </label>
 
       {extended && (
@@ -305,9 +309,10 @@ export default function SalleSubmissionForm({
 
       {extended && (
         <label>
-          Lien de réservation / inscription
+          Lien de réservation / inscription *
           <input
             type="text"
+            required
             placeholder="https://..."
             value={reservationUrl}
             onChange={(e) => setReservationUrl(e.target.value)}
@@ -317,9 +322,10 @@ export default function SalleSubmissionForm({
 
       {extended && (
         <label>
-          Horaires
+          Horaires *
           <input
             type="text"
+            required
             placeholder="Lun–Sam, 6h–22h"
             value={horaires}
             onChange={(e) => setHoraires(e.target.value)}
@@ -336,9 +342,10 @@ export default function SalleSubmissionForm({
 
       {extended && (
         <label>
-          Chaîne ou salle indépendante
+          Chaîne ou salle indépendante *
           <input
             type="text"
+            required
             placeholder="Indépendante, Fitness Park, On Air..."
             value={chaine}
             onChange={(e) => setChaine(e.target.value)}
@@ -346,19 +353,10 @@ export default function SalleSubmissionForm({
         </label>
       )}
 
-      {extended && (
-        <label>
-          Description courte de la salle
-          <textarea
-            rows={3}
-            value={descriptionCourte}
-            onChange={(e) => setDescriptionCourte(e.target.value)}
-          />
-        </label>
-      )}
-
       <label>
-        Remarques (équipements, ambiance, ce qui rend la salle intéressante...)
+        {extended
+          ? "Description ou remarques supplémentaires (équipements, ambiance, tout ce qui peut être intéressant à ajouter)"
+          : "Remarques (équipements, ambiance, ce qui rend la salle intéressante...)"}
         <textarea rows={4} value={remarques} onChange={(e) => setRemarques(e.target.value)} />
       </label>
 
