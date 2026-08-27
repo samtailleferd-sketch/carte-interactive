@@ -1,17 +1,20 @@
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
-import { statusColor } from "../statusStyle";
 import { getMarkerInitials } from "../utils/markerInitials";
+import { getMarkerColors } from "../utils/markerColors";
 import ZonesLayer from "./ZonesLayer";
 
 function markerIcon(salle, active) {
-  const color = statusColor(salle.statut);
+  const { primary, secondary, text } = getMarkerColors(salle);
   const size = active ? 30 : 24;
   const initials = getMarkerInitials(salle);
+  const style =
+    `--marker-color:${primary};--marker-border:${secondary};` +
+    `--marker-text:${text};--marker-size:${size}px`;
   return L.divIcon({
     className: "gym-marker-icon",
-    html: `<span class="gym-marker" style="--marker-color:${color};--marker-size:${size}px">${initials}</span>`,
+    html: `<span class="gym-marker" style="${style}">${initials}</span>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });

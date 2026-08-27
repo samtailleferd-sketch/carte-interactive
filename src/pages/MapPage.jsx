@@ -156,6 +156,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
               onClose={() => onSelect(null)}
               isFavorite={isFavorite(selectedSalle.id)}
               onToggleFavorite={toggleFavorite}
+              userLocation={userLocation}
             />
           )}
 

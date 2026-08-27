@@ -3,16 +3,21 @@ import StatusBadge from "./StatusBadge";
 import GymImage from "./GymImage";
 import FavoriteButton from "./FavoriteButton";
 import { reportErrorMailto } from "../utils/report";
+import { distanceKm, formatDistance } from "../utils/geoDistance";
 
 function isRealLink(url) {
   return Boolean(url) && url !== "#";
 }
 
-export default function GymPanel({ salle, onClose, isFavorite, onToggleFavorite }) {
+export default function GymPanel({ salle, onClose, isFavorite, onToggleFavorite, userLocation }) {
   if (!salle) return null;
 
   const directionsUrl =
     salle.google_maps_url || `https://www.google.com/maps/dir/?api=1&destination=${salle.lat},${salle.lng}`;
+
+  const distance = userLocation
+    ? formatDistance(distanceKm(userLocation, { lat: salle.lat, lng: salle.lng }))
+    : null;
 
   return (
     <div className="gym-panel" role="dialog" aria-label={`Fiche ${salle.nom}`}>
@@ -38,7 +43,10 @@ export default function GymPanel({ salle, onClose, isFavorite, onToggleFavorite 
         <StatusBadge statut={salle.statut} />
       </div>
 
-      <p className="gym-panel__ville">{salle.ville}</p>
+      <p className="gym-panel__ville">
+        {salle.ville}
+        {distance && <span className="gym-panel__distance"> · {distance}</span>}
+      </p>
       {salle.adresse && <p className="gym-panel__adresse">{salle.adresse}</p>}
 
       {salle.description && <p className="gym-panel__description">{salle.description}</p>}
