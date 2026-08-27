@@ -145,6 +145,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             initialView={mapView}
             onViewChange={onMapViewChange}
             userLocation={userLocation}
+            searchQuery={filters.query}
           />
 
           {showZones && !selectedSalle && <ZonesLegend />}

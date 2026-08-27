@@ -2,16 +2,18 @@ import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-lea
 import L from "leaflet";
 import { useEffect } from "react";
 import { statusColor } from "../statusStyle";
+import { getMarkerInitials } from "../utils/markerInitials";
 import ZonesLayer from "./ZonesLayer";
 
-function markerIcon(statut, active) {
-  const color = statusColor(statut);
-  const size = active ? 34 : 26;
+function markerIcon(salle, active) {
+  const color = statusColor(salle.statut);
+  const size = active ? 30 : 24;
+  const initials = getMarkerInitials(salle);
   return L.divIcon({
     className: "gym-marker-icon",
-    html: `<span class="gym-marker" style="--marker-color:${color};--marker-size:${size}px"></span>`,
+    html: `<span class="gym-marker" style="--marker-color:${color};--marker-size:${size}px">${initials}</span>`,
     iconSize: [size, size],
-    iconAnchor: [size / 2, size],
+    iconAnchor: [size / 2, size / 2],
   });
 }
 
@@ -19,9 +21,36 @@ function FlyToSelection({ salle }) {
   const map = useMap();
   useEffect(() => {
     if (salle) {
-      map.flyTo([salle.lat, salle.lng], Math.max(map.getZoom(), 11), { duration: 0.6 });
+      map.flyTo([salle.lat, salle.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
     }
   }, [salle, map]);
+  return null;
+}
+
+// Recentre/zoome automatiquement sur les résultats d'une recherche texte
+// (ville ou nom de salle) pour donner un vrai contexte local — une seule
+// salle trouvée : zoom serré dessus ; plusieurs : la carte cadre l'ensemble.
+// Débounce court pour ne pas faire voler la carte à chaque lettre tapée, et
+// ne se déclenche que sur un changement du texte de recherche lui-même (pas
+// sur les autres filtres, ni sur le simple fait que la liste change).
+function SearchFocus({ query, salles }) {
+  const map = useMap();
+  useEffect(() => {
+    const trimmed = (query || "").trim();
+    if (!trimmed || salles.length === 0) return undefined;
+
+    const timer = setTimeout(() => {
+      if (salles.length === 1) {
+        map.flyTo([salles[0].lat, salles[0].lng], 13, { duration: 0.7 });
+      } else {
+        const bounds = L.latLngBounds(salles.map((s) => [s.lat, s.lng]));
+        map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 13, duration: 0.7 });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, map]);
   return null;
 }
 
@@ -82,7 +111,16 @@ function MapResizeObserver() {
   return null;
 }
 
-export default function GymMap({ salles, selectedId, onSelect, showZones, initialView, onViewChange, userLocation }) {
+export default function GymMap({
+  salles,
+  selectedId,
+  onSelect,
+  showZones,
+  initialView,
+  onViewChange,
+  userLocation,
+  searchQuery,
+}) {
   const center = initialView?.center || [44.6, 5.6];
   const zoom = initialView?.zoom || 7;
 
@@ -91,21 +129,23 @@ export default function GymMap({ salles, selectedId, onSelect, showZones, initia
   return (
     <MapContainer center={center} zoom={zoom} className="map" scrollWheelZoom>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={19}
       />
       {showZones && <ZonesLayer />}
       {salles.map((salle) => (
         <Marker
           key={salle.id}
           position={[salle.lat, salle.lng]}
-          icon={markerIcon(salle.statut, salle.id === selectedId)}
+          icon={markerIcon(salle, salle.id === selectedId)}
           alt={salle.nom}
           title={salle.nom}
           eventHandlers={{ click: () => onSelect(salle.id) }}
         />
       ))}
       <FlyToSelection salle={selectedSalle} />
+      <SearchFocus query={searchQuery} salles={salles} />
       <UserLocationMarker userLocation={userLocation} />
       <ViewTracker onViewChange={onViewChange} />
       <MapResizeObserver />
