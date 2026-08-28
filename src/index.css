@@ -1,21 +1,55 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap");
 
 :root {
-  --bg: #0b0c10;
-  --bg-elevated: #15161d;
-  --border: #262832;
-  --text: #f4f4f6;
-  --text-muted: #9a9ba6;
-  --accent: #ef4136;
-  --accent-strong: #ff6b60;
-  --primary: #3d7fff;
-  --gold: #ffb703;
+  /* fonds */
+  --bg: #08090c;
+  --surface: #14161b;
+  --surface-2: #1e222a;
+  --line: #242832;
+  --line-input: #2c313b;
 
-  --sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: "Barlow Condensed", "Inter", system-ui, sans-serif;
+  /* texte */
+  --text: #f2f4f8;
+  --text-2: #cfd5df;
+  --text-3: #a4abb8;
+  --text-4: #7c8492;
+  --text-placeholder: #6f7885;
+
+  /* accents */
+  --primary: #4d9bff;
+  --primary-light: #8cbcff;
+  --primary-soft: rgba(77, 155, 255, 0.16);
+  --danger: #ff5347;
+  --danger-light: #ff8b83;
+  --danger-soft: rgba(255, 83, 71, 0.16);
+  --success: #22e58a;
+  --success-light: #4dffab;
+  --success-soft: rgba(34, 229, 138, 0.15);
+  --neutral: #8a93a3;
+
+  /* carte */
+  --map-land: #0f1218;
+  --map-water: #13273e;
+  --map-park: #16281a;
+
+  /* rayons */
+  --r-panel: 18px;
+  --r-card: 14px;
+  --r-field: 12px;
+  --r-badge: 7px;
+  --r-pill: 999px;
+
+  /* ombres */
+  --sh-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5);
+  --sh-float: 0 4px 10px rgba(0, 0, 0, 0.55), 0 24px 60px rgba(0, 0, 0, 0.7);
+  --glow-primary: 0 0 22px rgba(77, 155, 255, 0.4);
+
+  /* typo */
+  --sans: "DM Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Archivo", "DM Sans", system-ui, sans-serif;
 
   color-scheme: dark;
-  font: 16px/1.5 var(--sans);
+  font: 16px/1.55 var(--sans);
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -37,8 +71,8 @@ body {
 
 h1, h2, h3 {
   font-family: var(--heading);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 

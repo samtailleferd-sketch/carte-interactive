@@ -2,19 +2,21 @@ import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { PENDING_CONSENT_KEY } from "../hooks/useAuth";
 import { SITE_URL } from "../config";
+import { fnslZones } from "../data/fnslZones";
+import Toggle from "./Toggle";
 
 const STEP_EMAIL = "email";
 const STEP_SENT = "sent";
 
-// Connexion par lien envoyé par email (pas de mot de passe géré nous-mêmes).
-// Le modèle d'email par défaut de Supabase n'inclut qu'un lien cliquable (pas
-// de code à saisir) tant qu'aucun SMTP personnalisé n'est configuré — le
-// parcours suit donc ce lien plutôt qu'un code, pour rester 100% gratuit et
-// simple à mettre en place.
+// Connexion par lien envoyé par email (pas de mot de passe géré nous-mêmes,
+// pas de bascule créer/se connecter — signInWithOtp gère les deux cas en une
+// seule étape). Le modèle d'email par défaut de Supabase n'inclut qu'un lien
+// cliquable tant qu'aucun SMTP personnalisé n'est configuré.
 export default function AuthModal({ onClose }) {
   const [step, setStep] = useState(STEP_EMAIL);
   const [email, setEmail] = useState("");
-  const [alertesLocales, setAlertesLocales] = useState(false);
+  const [regionFnsl, setRegionFnsl] = useState("");
+  const [alertesLocales, setAlertesLocales] = useState(true);
   const [newsletter, setNewsletter] = useState(false);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -30,7 +32,11 @@ export default function AuthModal({ onClose }) {
     // que le lien reçu par email aura été cliqué (voir useAuth.js).
     localStorage.setItem(
       PENDING_CONSENT_KEY,
-      JSON.stringify({ newsletter_consent: newsletter, alertes_locales_consent: alertesLocales })
+      JSON.stringify({
+        newsletter_consent: newsletter,
+        alertes_locales_consent: alertesLocales,
+        region_fnsl: regionFnsl || null,
+      })
     );
     const { error: sendError } = await supabase.auth.signInWithOtp({
       email,
@@ -58,10 +64,10 @@ export default function AuthModal({ onClose }) {
 
         {step === STEP_EMAIL && (
           <form onSubmit={handleSendLink}>
-            <h2>Se connecter</h2>
+            <h2>Rejoins la carte</h2>
             <p className="auth-modal__hint">
-              Reçois un lien de connexion par email — aucun mot de passe à retenir. La carte reste consultable sans
-              compte.
+              Enregistre tes salles favorites, propose des ajouts, reçois les nouveautés de ta région — aucun mot de
+              passe à retenir, un simple lien par email.
             </p>
             <input
               type="email"
@@ -72,25 +78,33 @@ export default function AuthModal({ onClose }) {
               autoFocus
             />
 
-            <label className="auth-modal__checkbox">
-              <input
-                type="checkbox"
+            <label className="auth-modal__field-label">
+              Région FNSL
+              <select value={regionFnsl} onChange={(e) => setRegionFnsl(e.target.value)}>
+                <option value="">Je ne sais pas encore</option>
+                {Object.keys(fnslZones).map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="auth-modal__toggles">
+              <Toggle
                 checked={alertesLocales}
-                onChange={(e) => setAlertesLocales(e.target.checked)}
+                onChange={setAlertesLocales}
+                label="Recevoir des alertes nouvelles salles"
               />
-              Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL
-            </label>
-            <label className="auth-modal__checkbox">
-              <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} />
-              S'abonner à la newsletter Street Map / FNSL
-            </label>
+              <Toggle checked={newsletter} onChange={setNewsletter} label="Recevoir la newsletter FNSL Sud Est" />
+            </div>
 
             {error && <p className="auth-modal__error">{error}</p>}
             <button type="submit" className="btn btn--primary auth-modal__submit" disabled={sending}>
               {sending ? "Envoi..." : "Recevoir un lien de connexion"}
             </button>
             <button type="button" className="auth-modal__skip" onClick={onClose}>
-              Continuer sans compte
+              Continuer sans compte →
             </button>
           </form>
         )}

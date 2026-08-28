@@ -57,6 +57,8 @@ export const PRATIQUE_FILTERS = [
   { key: "coaching", label: "Coaching disponible", check: (s) => Boolean(s.coachingDisponible) },
 ];
 
+export const DEFAULT_RADIUS_KM = 50;
+
 export function emptyFilters() {
   return {
     query: "",
@@ -67,6 +69,7 @@ export function emptyFilters() {
     niveaux: new Set(),
     pratiques: new Set(),
     favorisOnly: false,
+    radiusKm: DEFAULT_RADIUS_KM,
   };
 }
 
@@ -162,4 +165,13 @@ export function matchesFilters(salle, filters, favorites) {
   }
 
   return true;
+}
+
+// Nombre de salles qui correspondraient à ce statut si on l'ajoutait, tous
+// les autres filtres actifs restant inchangés — indépendant de la sélection
+// de statuts actuelle, pour que chaque interrupteur affiche un compte
+// pertinent même quand plusieurs statuts sont déjà cochés.
+export function countByStatut(salles, filters, favorites, variantKey) {
+  const probe = { ...filters, statuts: new Set([variantKey]) };
+  return salles.filter((s) => matchesFilters(s, probe, favorites)).length;
 }

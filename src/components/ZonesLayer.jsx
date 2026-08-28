@@ -54,10 +54,10 @@ function popupContent(feature) {
   const zone = zoneForDepartment(feature.properties.code);
   const dept = `${feature.properties.nom} (${feature.properties.code})`;
   if (!zone) {
-    return `<b>${dept}</b><br/>Zone FNSL non déterminée<br/><span style="color:#ffb703">À confirmer</span>`;
+    return `<b>${dept}</b><br/>Zone FNSL non déterminée<br/><span style="color:#7c8492">À confirmer</span>`;
   }
   const statutLabel = zone.statut === "confirme" ? "Confirmé" : "Provisoire";
-  const statutColor = zone.statut === "confirme" ? "#4cc995" : "#ffb703";
+  const statutColor = zone.statut === "confirme" ? "#22e58a" : "#7c8492";
   return `<b>FNSL ${zone.name}</b><br/>${dept}<br/><span style="color:${statutColor}">${statutLabel}</span><br/><span style="font-size:12px;opacity:0.8">${zone.source}</span>`;
 }
 

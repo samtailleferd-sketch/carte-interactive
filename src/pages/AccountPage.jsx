@@ -6,6 +6,8 @@ import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
 import { compressImage } from "../utils/compressImage";
 import { fetchSalles } from "../data/fetchSalles";
+import GymResultCard from "../components/GymResultCard";
+import Toggle from "../components/Toggle";
 import {
   isPushSupported,
   isRunningAsInstalledApp,
@@ -17,10 +19,23 @@ import {
 const DELETE_EMAIL = "tailleferdsam@gmail.com";
 const AVATAR_BUCKET = "avatars";
 
+const PROPOSITION_STATUT_LABEL = {
+  en_attente: "En attente de vérification",
+  publiee: "Publiée",
+  rejetee: "Non retenue",
+};
+
 function deleteAccountMailto(email) {
   const subject = "Demande de suppression de compte Street Map";
   const body = `Bonjour,\n\nJe souhaite supprimer mon compte Street Map associé à cette adresse : ${email}\n\n`;
   return `mailto:${DELETE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function memberSince(isoDate) {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 }
 
 export default function AccountPage() {
@@ -32,6 +47,7 @@ export default function AccountPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [salles, setSalles] = useState([]);
+  const [propositions, setPropositions] = useState([]);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [pushError, setPushError] = useState("");
@@ -41,6 +57,16 @@ export default function AccountPage() {
   }, []);
 
   useEffect(() => {
+    if (!user || !supabase) return;
+    supabase
+      .from("salle_propositions")
+      .select("id, nom, ville, statut, created_at")
+      .eq("submitted_by", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setPropositions(data || []));
+  }, [user]);
+
+  useEffect(() => {
     if (!user || !isPushSupported()) return;
     navigator.serviceWorker.getRegistration().then(async (registration) => {
       const subscription = await registration?.pushManager.getSubscription();
@@ -48,17 +74,16 @@ export default function AccountPage() {
     });
   }, [user]);
 
-  const handleTogglePush = async (e) => {
-    const wantsSubscribed = e.target.checked;
+  const handleTogglePush = async (checked) => {
     setPushError("");
     setPushBusy(true);
     try {
-      if (wantsSubscribed) {
+      if (checked) {
         await subscribeToPush(user.id);
       } else {
         await unsubscribeFromPush();
       }
-      setPushSubscribed(wantsSubscribed);
+      setPushSubscribed(checked);
     } catch (err) {
       setPushError(
         err?.name === "NotAllowedError"
@@ -137,6 +162,8 @@ export default function AccountPage() {
     await supabase.auth.signOut();
   };
 
+  const pushToggleVisible = isPushSupported() && (!isIOS() || isRunningAsInstalledApp());
+
   return (
     <div className="account-page">
       <header className="detail-header">
@@ -150,8 +177,6 @@ export default function AccountPage() {
       </header>
 
       <div className="account-page__content">
-        <h1>Mon compte</h1>
-
         {loading && <p className="account-page__hint">Chargement...</p>}
 
         {!loading && !user && (
@@ -162,7 +187,7 @@ export default function AccountPage() {
 
         {!loading && user && (
           <>
-            <div className="account-page__avatar-row">
+            <div className="account-card account-card--profile">
               <div className="account-page__avatar-wrap">
                 {current.photo_url ? (
                   <img src={current.photo_url} alt="Photo de profil" className="account-page__avatar" />
@@ -179,154 +204,200 @@ export default function AccountPage() {
                   <input type="file" accept="image/*" onChange={handlePhotoChange} hidden disabled={uploading} />
                 </label>
               </div>
+              <div className="account-card--profile__info">
+                <h1>{current.prenom ? `${current.prenom} ${current.nom || ""}`.trim() : user.email}</h1>
+                <p>
+                  {[memberSince(user.created_at) && `Membre depuis ${memberSince(user.created_at)}`, current.region_fnsl]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
+              <div className="account-card--profile__counters">
+                <div>
+                  <div className="account-card--profile__counter-value">{favoriteSalles.length}</div>
+                  <div className="account-card--profile__counter-label">Favoris</div>
+                </div>
+                <div>
+                  <div className="account-card--profile__counter-value">{propositions.length}</div>
+                  <div className="account-card--profile__counter-label">Proposition{propositions.length > 1 ? "s" : ""}</div>
+                </div>
+              </div>
             </div>
+
             {uploadError && <p className="auth-modal__error">{uploadError}</p>}
 
-            <form onSubmit={handleSave} className="account-page__form">
-              <label>
-                Email
-                <input type="email" value={user.email} disabled />
-              </label>
-
-              <label>
-                Prénom
-                <input
-                  type="text"
-                  autoComplete="off"
-                  required
-                  value={current.prenom || ""}
-                  onChange={(e) => set({ prenom: e.target.value })}
-                />
-              </label>
-
-              <label>
-                Nom
-                <input
-                  type="text"
-                  autoComplete="off"
-                  required
-                  value={current.nom || ""}
-                  onChange={(e) => set({ nom: e.target.value })}
-                />
-              </label>
-
-              <label>
-                Ville
-                <input
-                  type="text"
-                  autoComplete="off"
-                  required
-                  value={current.ville || ""}
-                  onChange={(e) => set({ ville: e.target.value })}
-                />
-              </label>
-
-              <label>
-                Code postal
-                <input
-                  type="text"
-                  autoComplete="off"
-                  required
-                  value={current.code_postal || ""}
-                  onChange={(e) => set({ code_postal: e.target.value })}
-                />
-              </label>
-
-              <label>
-                Région FNSL
-                <select
-                  required
-                  value={current.region_fnsl || ""}
-                  onChange={(e) => set({ region_fnsl: e.target.value })}
-                >
-                  <option value="" disabled>
-                    Choisis ta région
-                  </option>
-                  {Object.keys(fnslZones).map((zone) => (
-                    <option key={zone} value={zone}>
-                      {zone}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="account-page__checkbox">
-                <input
-                  type="checkbox"
-                  checked={!!current.alertes_locales_consent}
-                  onChange={(e) => set({ alertes_locales_consent: e.target.checked })}
-                />
-                Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL
-              </label>
-
-              {isPushSupported() && isIOS() && !isRunningAsInstalledApp() && (
-                <p className="account-page__hint">
-                  Pour recevoir des notifications push, installe d'abord Street Map sur ton écran d'accueil
-                  (Safari → icône de partage → "Sur l'écran d'accueil").
-                </p>
-              )}
-
-              {isPushSupported() && (!isIOS() || isRunningAsInstalledApp()) && (
-                <label className="account-page__checkbox">
-                  <input
-                    type="checkbox"
-                    checked={pushSubscribed}
-                    disabled={pushBusy}
-                    onChange={handleTogglePush}
-                  />
-                  Recevoir une notification push quand une nouvelle salle est publiée dans ma région FNSL
+            <form onSubmit={handleSave} className="account-card">
+              <h2>Informations</h2>
+              <div className="account-page__form">
+                <label>
+                  Email
+                  <input type="email" value={user.email} disabled />
                 </label>
-              )}
-              {pushError && <p className="auth-modal__error">{pushError}</p>}
 
-              <label className="account-page__checkbox">
-                <input
-                  type="checkbox"
-                  checked={!!current.newsletter_consent}
-                  onChange={(e) => set({ newsletter_consent: e.target.checked })}
-                />
-                S'abonner à la newsletter Street Map / FNSL
-              </label>
+                <label>
+                  Prénom
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={current.prenom || ""}
+                    onChange={(e) => set({ prenom: e.target.value })}
+                  />
+                </label>
 
-              <button type="submit" className="btn btn--primary btn--full" disabled={saving}>
-                {saving ? "Enregistrement..." : saved ? "Enregistré ✓" : "Enregistrer"}
-              </button>
+                <label>
+                  Nom
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={current.nom || ""}
+                    onChange={(e) => set({ nom: e.target.value })}
+                  />
+                </label>
 
-              <button type="button" className="btn btn--full account-page__signout" onClick={handleSignOut}>
-                Se déconnecter
-              </button>
+                <label>
+                  Ville
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={current.ville || ""}
+                    onChange={(e) => set({ ville: e.target.value })}
+                  />
+                </label>
 
-              <a href={deleteAccountMailto(user.email)} className="account-page__delete-link">
-                Demander la suppression de mon compte
-              </a>
+                <label>
+                  Code postal
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    required
+                    value={current.code_postal || ""}
+                    onChange={(e) => set({ code_postal: e.target.value })}
+                  />
+                </label>
+
+                <label>
+                  Région FNSL suivie
+                  <select
+                    required
+                    value={current.region_fnsl || ""}
+                    onChange={(e) => set({ region_fnsl: e.target.value })}
+                  >
+                    <option value="" disabled>
+                      Choisis ta région
+                    </option>
+                    {Object.keys(fnslZones).map((zone) => (
+                      <option key={zone} value={zone}>
+                        {zone}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <button type="submit" className="btn btn--primary" disabled={saving} style={{ alignSelf: "flex-start" }}>
+                  {saving ? "Enregistrement..." : saved ? "Enregistré ✓" : "Enregistrer"}
+                </button>
+              </div>
             </form>
 
-            <section className="account-page__favorites">
-              <h2>Salles favorites</h2>
+            <div className="account-card">
+              <h2>Préférences</h2>
+              <div className="account-page__toggles">
+                <Toggle
+                  checked={!!current.alertes_locales_consent}
+                  onChange={(v) => set({ alertes_locales_consent: v })}
+                  label="Recevoir un email quand une nouvelle salle est publiée dans ma région FNSL"
+                />
+
+                {isPushSupported() && isIOS() && !isRunningAsInstalledApp() && (
+                  <p className="account-page__hint">
+                    Pour recevoir des notifications push, installe d'abord Street Map sur ton écran d'accueil
+                    (Safari → icône de partage → "Sur l'écran d'accueil").
+                  </p>
+                )}
+
+                {pushToggleVisible && (
+                  <Toggle
+                    checked={pushSubscribed}
+                    onChange={handleTogglePush}
+                    label="Recevoir une notification push pour les nouvelles salles de ma région"
+                  />
+                )}
+                {pushBusy && <p className="account-page__hint">Mise à jour...</p>}
+                {pushError && <p className="auth-modal__error">{pushError}</p>}
+
+                <Toggle
+                  checked={!!current.newsletter_consent}
+                  onChange={(v) => set({ newsletter_consent: v })}
+                  label="Recevoir la newsletter Street Map / FNSL Sud Est"
+                />
+              </div>
+            </div>
+
+            <div className="account-card">
+              <div className="account-card__head">
+                <h2>Salles favorites</h2>
+                <span className="account-card__count">{favoriteSalles.length}</span>
+              </div>
               {favoriteSalles.length === 0 ? (
                 <p className="account-page__hint">
                   Aucune salle favorite pour l'instant — clique sur le cœur d'une fiche pour l'ajouter ici.
                 </p>
               ) : (
-                <ul className="account-page__favorites-list">
+                <div className="account-page__favorites-list">
                   {favoriteSalles.map((salle) => (
-                    <li key={salle.id} className="account-page__favorites-item">
-                      <Link to={`/salles/${salle.slug}`}>
-                        {salle.nom} <span>— {salle.ville}</span>
-                      </Link>
+                    <div className="account-favorite-row" key={salle.id}>
+                      <GymResultCard salle={salle} compact onClick={() => window.location.assign(`#/salles/${salle.slug}`)} />
                       <button
                         type="button"
                         onClick={() => toggleFavorite(salle.id)}
                         aria-label="Retirer des favoris"
-                        className="account-page__favorites-remove"
+                        className="account-favorite-row__remove"
                       >
-                        ×
+                        ♥
                       </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="account-card account-card--propositions">
+              <div className="account-card__head">
+                <h2>Mes propositions</h2>
+              </div>
+              {propositions.length === 0 ? (
+                <p className="account-page__hint">Tu n'as pas encore proposé de salle.</p>
+              ) : (
+                <p className="account-page__hint">
+                  {propositions.length} salle{propositions.length > 1 ? "s" : ""} proposée
+                  {propositions.length > 1 ? "s" : ""} —{" "}
+                  {propositions.filter((p) => p.statut === "en_attente").length} en attente de vérification.
+                </p>
+              )}
+              {propositions.length > 0 && (
+                <ul className="account-propositions-list">
+                  {propositions.map((p) => (
+                    <li key={p.id} className="account-propositions-item">
+                      <span>{p.nom || "Salle sans nom"}</span>
+                      <span className="account-propositions-item__statut">
+                        {PROPOSITION_STATUT_LABEL[p.statut] || "En attente de vérification"}
+                      </span>
                     </li>
                   ))}
                 </ul>
               )}
-            </section>
+            </div>
+
+            <a href={deleteAccountMailto(user.email)} className="account-page__delete-link">
+              Demander la suppression de mon compte
+            </a>
+
+            <button type="button" className="account-page__signout" onClick={handleSignOut}>
+              Se déconnecter
+            </button>
           </>
         )}
       </div>

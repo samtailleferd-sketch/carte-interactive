@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import Toggle from "./Toggle";
 import {
   STREETLIFTING_FILTERS,
   FORCE_FILTERS,
   STATUT_FILTERS,
   NIVEAU_FILTERS,
   PRATIQUE_FILTERS,
-  emptyFilters,
-  hasActiveFilters,
+  countByStatut,
 } from "../utils/filters";
+import { VARIANT_COLORS } from "../statusStyle";
 
 function toggleInSet(set, value) {
   const next = new Set(set);
@@ -17,27 +18,37 @@ function toggleInSet(set, value) {
   return next;
 }
 
-function CheckboxGroup({ title, defaultOpen, options, selected, onToggle }) {
+function PillGroup({ title, options, selected, onToggle }) {
+  if (options.length === 0) return null;
   return (
-    <details className="filter-group" open={defaultOpen}>
-      <summary className="filter-group__title">{title}</summary>
-      <div className="filter-group__options">
+    <div className="filter-group filter-group--pills">
+      <h3 className="filter-group__title filter-group__title--static">{title}</h3>
+      <div className="option-pill-grid">
         {options.map((opt) => (
-          <label className="filter-option" key={opt.key}>
-            <input
-              type="checkbox"
-              checked={selected.has(opt.key)}
-              onChange={() => onToggle(opt.key)}
-            />
+          <button
+            key={opt.key}
+            type="button"
+            className={`option-pill ${selected.has(opt.key) ? "option-pill--selected" : ""}`}
+            onClick={() => onToggle(opt.key)}
+            aria-pressed={selected.has(opt.key)}
+          >
             {opt.label}
-          </label>
+          </button>
         ))}
       </div>
-    </details>
+    </div>
   );
 }
 
-export default function FilterPanel({ salles, filters, onFiltersChange, onLocateMe, locateError, favoritesCount }) {
+export default function FilterPanel({
+  salles,
+  filters,
+  onFiltersChange,
+  onLocateMe,
+  locateError,
+  favoritesCount,
+  userLocation,
+}) {
   const [linkCopied, setLinkCopied] = useState(false);
   const set = (patch) => onFiltersChange({ ...filters, ...patch });
 
@@ -74,7 +85,6 @@ export default function FilterPanel({ salles, filters, onFiltersChange, onLocate
   collect("chaines", "chaines", chaineOptions);
   collect("streetlifting", "streetlifting", STREETLIFTING_FILTERS);
   collect("force", "force", FORCE_FILTERS);
-  collect("statuts", "statuts", STATUT_FILTERS);
   collect("niveaux", "niveaux", NIVEAU_FILTERS);
   collect("pratiques", "pratiques", PRATIQUE_FILTERS);
 
@@ -114,65 +124,91 @@ export default function FilterPanel({ salles, filters, onFiltersChange, onLocate
       {activeTags.length > 0 && (
         <div className="filter-active-tags">
           {activeTags.map((tag) => (
-            <button key={tag.id} className="filter-active-tag" onClick={tag.onRemove}>
+            <button key={tag.id} type="button" className="filter-active-tag" onClick={tag.onRemove}>
               {tag.label} <span aria-hidden="true">×</span>
             </button>
           ))}
         </div>
       )}
 
-      <CheckboxGroup
+      <div className="radius-slider">
+        <div className="radius-slider__head">
+          <h3>Autour de moi</h3>
+          <span className="radius-slider__value">{filters.radiusKm} km</span>
+        </div>
+        <input
+          type="range"
+          min={5}
+          max={120}
+          step={5}
+          value={filters.radiusKm}
+          disabled={!userLocation}
+          onChange={(e) => set({ radiusKm: Number(e.target.value) })}
+          aria-label="Rayon de recherche autour de moi"
+        />
+        <div className="radius-slider__bounds">
+          <span>5 km</span>
+          <span>120 km</span>
+        </div>
+        {!userLocation && (
+          <p className="radius-slider__hint">
+            Active « Autour de moi » pour filtrer les salles par distance.
+          </p>
+        )}
+      </div>
+
+      <PillGroup
         title="Chaîne / type de salle"
-        defaultOpen
         options={chaineOptions}
         selected={filters.chaines}
         onToggle={(key) => set({ chaines: toggleInSet(filters.chaines, key) })}
       />
 
-      <CheckboxGroup
+      <PillGroup
         title="Streetlifting"
-        defaultOpen
         options={STREETLIFTING_FILTERS}
         selected={filters.streetlifting}
         onToggle={(key) => set({ streetlifting: toggleInSet(filters.streetlifting, key) })}
       />
 
-      <CheckboxGroup
+      <PillGroup
         title="Force"
-        defaultOpen
         options={FORCE_FILTERS}
         selected={filters.force}
         onToggle={(key) => set({ force: toggleInSet(filters.force, key) })}
       />
 
-      <CheckboxGroup
-        title="Statut FNSL Sud Est"
-        options={STATUT_FILTERS}
-        selected={filters.statuts}
-        onToggle={(key) => set({ statuts: toggleInSet(filters.statuts, key) })}
-      />
+      <div className="filter-group">
+        <h3 className="filter-group__title filter-group__title--static">Statut FNSL Sud Est</h3>
+        <div className="status-list">
+          {STATUT_FILTERS.map((def) => (
+            <div className="status-row" key={def.key}>
+              <span className="status-row__dot" style={{ background: VARIANT_COLORS[def.variant] }} />
+              {def.label}
+              <span className="status-row__count">{countByStatut(salles, filters, undefined, def.variant)}</span>
+              <Toggle
+                checked={filters.statuts.has(def.variant)}
+                onChange={() => set({ statuts: toggleInSet(filters.statuts, def.variant) })}
+                ariaLabel={def.label}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <CheckboxGroup
+      <PillGroup
         title="Niveau de pertinence"
         options={NIVEAU_FILTERS}
         selected={filters.niveaux}
         onToggle={(key) => set({ niveaux: toggleInSet(filters.niveaux, key) })}
       />
 
-      <CheckboxGroup
+      <PillGroup
         title="Plus de filtres"
         options={PRATIQUE_FILTERS}
         selected={filters.pratiques}
         onToggle={(key) => set({ pratiques: toggleInSet(filters.pratiques, key) })}
       />
-
-      <button
-        className="filter-reset"
-        onClick={() => onFiltersChange(emptyFilters())}
-        disabled={!hasActiveFilters(filters)}
-      >
-        Réinitialiser les filtres
-      </button>
     </div>
   );
 }

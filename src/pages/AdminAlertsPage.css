@@ -21,15 +21,15 @@
 
 .admin-alerts-page__item {
   padding: 14px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: var(--sh-card);
 }
 
 .admin-alerts-page__item-nom {
   display: block;
   margin: 0 0 2px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
   text-decoration: none;
 }
@@ -37,7 +37,7 @@
 .admin-alerts-page__item-meta {
   margin: 0;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-3);
 }
 
 .admin-alerts-page__item-actions {
@@ -49,54 +49,54 @@
 .admin-alerts-page__item-sent {
   margin: 10px 0 0;
   font-size: 13px;
-  color: var(--accent-strong);
+  color: var(--success-light);
 }
 
 .admin-alerts-page__item-error {
   margin: 10px 0 0;
   font-size: 13px;
-  color: var(--accent);
+  color: var(--danger-light);
 }
 
 .admin-propositions__source {
   display: inline-block;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(61, 127, 255, 0.15);
-  color: var(--primary);
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: var(--r-badge);
+  background: var(--primary-soft);
+  color: var(--primary-light);
 }
 
 .admin-propositions__statut {
   display: inline-block;
   margin-left: 6px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(154, 155, 166, 0.15);
-  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: var(--r-badge);
+  background: var(--surface-2);
+  color: var(--text-4);
 }
 
 .admin-propositions__statut--validee {
-  background: rgba(76, 201, 149, 0.15);
-  color: #4cc995;
+  background: var(--success-soft);
+  color: var(--success-light);
 }
 
 .admin-propositions__statut--rejetee {
-  background: rgba(239, 65, 54, 0.15);
-  color: var(--accent-strong);
+  background: var(--danger-soft);
+  color: var(--danger-light);
 }
 
 .admin-propositions__remarques {
   margin: 10px 0 0;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-3);
   line-height: 1.5;
 }
 
@@ -111,14 +111,13 @@
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  border-radius: var(--r-field);
 }
 
 .admin-alerts-page__modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.72);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +127,7 @@
 
 .admin-alerts-page__modal {
   background: var(--bg);
-  border-radius: 12px;
+  border-radius: var(--r-panel);
   width: 100%;
   max-width: 520px;
   max-height: 85vh;
@@ -142,7 +141,7 @@
   margin: 10px 10px 0 0;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-3);
   cursor: pointer;
   font: inherit;
 }
@@ -155,8 +154,8 @@
 }
 
 .admin-alerts-page__confirm {
-  background: var(--bg-elevated);
-  border-radius: 12px;
+  background: var(--surface);
+  border-radius: var(--r-panel);
   padding: 20px;
   max-width: 360px;
   width: 100%;

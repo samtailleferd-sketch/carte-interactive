@@ -3,36 +3,14 @@ import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../hooks/useAuth";
 import { compressImage } from "../utils/compressImage";
+import { STREETLIFTING_FILTERS, FORCE_FILTERS } from "../utils/filters";
 
 const MAX_PHOTOS = 10;
 const PROPOSITIONS_BUCKET = "propositions";
 
-// Vocabulaire proche de STREETLIFTING_FILTERS/FORCE_FILTERS (src/utils/filters.js)
-// mais volontairement plus détaillé — ce formulaire capture tout ce qu'une
-// salle veut bien préciser, sans être limité aux seuls tags actuellement
-// filtrables sur la carte. Les cases cochées sont jointes en texte
-// virgule, même format que les colonnes du Sheet public.
-const EQUIPEMENTS_STREETLIFTING = [
-  "Barres de traction",
-  "Tractions lestées possibles",
-  "Station de dips",
-  "Station de dips réglable",
-  "Dips lestés possibles",
-  "Anneaux",
-  "Barres parallèles",
-];
-
-const EQUIPEMENTS_FORCE = [
-  "Racks à squat",
-  "Cages à squat",
-  "Plateformes de soulevé de terre",
-  "Barres olympiques",
-  "Disques calibrés",
-  "Bumpers",
-  "Ceintures de lest",
-  "Haltères lourds",
-  "Bancs solides",
-];
+// Même vocabulaire que les filtres de la carte et le badge des fiches salle —
+// un seul tableau source, importé partout (voir 04-MODELE-DONNEES.md).
+const EQUIPEMENTS = [...FORCE_FILTERS, ...STREETLIFTING_FILTERS].map((f) => f.label);
 
 function newId() {
   return crypto.randomUUID();
@@ -45,11 +23,21 @@ function toggleInSet(set, value) {
   return next;
 }
 
+function FormBlock({ number, title, children }) {
+  return (
+    <div className="form-block">
+      <div className="form-block__head">
+        <span className="form-block__number">{number}</span>
+        <h2 className="form-block__title">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 // Formulaire partagé entre "Proposer une salle" (extended=false, un
 // pratiquant suggère une salle qu'il connaît) et "Référencer votre salle"
-// (extended=true, la salle renseigne elle-même ses informations). Le
-// comportement par défaut (props non précisées) reproduit exactement
-// l'ancien formulaire "Proposer une salle" — aucune régression attendue.
+// (extended=true, la salle renseigne elle-même ses informations).
 export default function SalleSubmissionForm({
   source = "utilisateur",
   extended = false,
@@ -77,8 +65,7 @@ export default function SalleSubmissionForm({
   const [reservationUrl, setReservationUrl] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [chaine, setChaine] = useState("");
-  const [equipementsStreetlifting, setEquipementsStreetlifting] = useState(new Set());
-  const [equipementsForce, setEquipementsForce] = useState(new Set());
+  const [equipements, setEquipements] = useState(new Set());
   const [magnesieAutorisee, setMagnesieAutorisee] = useState(false);
   const [filmageAutorise, setFilmageAutorise] = useState(false);
   const [materielCompetition, setMaterielCompetition] = useState(false);
@@ -104,8 +91,7 @@ export default function SalleSubmissionForm({
     setReservationUrl("");
     setGoogleMapsUrl("");
     setChaine("");
-    setEquipementsStreetlifting(new Set());
-    setEquipementsForce(new Set());
+    setEquipements(new Set());
     setMagnesieAutorisee(false);
     setFilmageAutorise(false);
     setMaterielCompetition(false);
@@ -151,6 +137,11 @@ export default function SalleSubmissionForm({
     setSubmitting(true);
 
     const propositionId = newId();
+    const equipementsList = Array.from(equipements);
+    const equipementsStreetlifting = equipementsList.filter((label) =>
+      STREETLIFTING_FILTERS.some((f) => f.label === label)
+    );
+    const equipementsForce = equipementsList.filter((label) => FORCE_FILTERS.some((f) => f.label === label));
 
     try {
       for (const photo of photos) {
@@ -167,7 +158,11 @@ export default function SalleSubmissionForm({
         adresse: adresse.trim() || null,
         instagram: instagram.trim() || null,
         site_web: siteWeb.trim() || null,
+        google_maps_url: googleMapsUrl.trim() || null,
+        equipements_streetlifting: equipementsStreetlifting.join(", ") || null,
+        equipements_force: equipementsForce.join(", ") || null,
         remarques: remarques.trim() || null,
+        email: !extended ? email.trim() || null : undefined,
         submitted_by: user?.id || null,
         source,
       };
@@ -180,10 +175,7 @@ export default function SalleSubmissionForm({
           horaires: horaires.trim() || null,
           prix_seance: prixSeance.trim() || null,
           reservation_url: reservationUrl.trim() || null,
-          google_maps_url: googleMapsUrl.trim() || null,
           chaine: chaine.trim() || null,
-          equipements_streetlifting: Array.from(equipementsStreetlifting).join(", ") || null,
-          equipements_force: Array.from(equipementsForce).join(", ") || null,
           magnesie_autorisee: magnesieAutorisee,
           filmage_autorise: filmageAutorise,
           materiel_competition: materielCompetition,
@@ -236,243 +228,242 @@ export default function SalleSubmissionForm({
   return (
     <>
       {children}
+
+      <div className="form-banner">
+        <span className="form-banner__icon" aria-hidden="true">
+          i
+        </span>
+        La salle sera vérifiée par la FNSL Sud Est avant publication.
+      </div>
+
       <form className="propose-form" onSubmit={handleSubmit} onKeyDown={handleFormKeyDown}>
-      <label>
-        Nom de la salle *
-        <input type="text" required value={nom} onChange={(e) => setNom(e.target.value)} />
-      </label>
+        <FormBlock number={1} title="La salle">
+          <label>
+            Nom de la salle *
+            <input type="text" required placeholder="ex. Force Club Marseille" value={nom} onChange={(e) => setNom(e.target.value)} />
+          </label>
 
-      <label>
-        Ville *
-        <input type="text" required value={ville} onChange={(e) => setVille(e.target.value)} />
-      </label>
-
-      <label>
-        Adresse{extended ? " *" : ""}
-        <input type="text" required={extended} value={adresse} onChange={(e) => setAdresse(e.target.value)} />
-      </label>
-
-      {extended && (
-        <label>
-          Code postal *
-          <input type="text" required value={codePostal} onChange={(e) => setCodePostal(e.target.value)} />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Téléphone *
-          <input type="tel" required value={telephone} onChange={(e) => setTelephone(e.target.value)} />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Email de contact *
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-      )}
-
-      <label>
-        Instagram{extended ? " *" : ""}
-        <input
-          type="text"
-          required={extended}
-          placeholder="https://instagram.com/..."
-          value={instagram}
-          onChange={(e) => setInstagram(e.target.value)}
-        />
-      </label>
-
-      <label>
-        Site web{extended ? " *" : ""}
-        <input
-          type="text"
-          required={extended}
-          placeholder="https://..."
-          value={siteWeb}
-          onChange={(e) => setSiteWeb(e.target.value)}
-        />
-      </label>
-
-      {extended && (
-        <label>
-          Lien Google Maps
-          <input
-            type="text"
-            placeholder="https://maps.app.goo.gl/..."
-            value={googleMapsUrl}
-            onChange={(e) => setGoogleMapsUrl(e.target.value)}
-          />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Lien de réservation / inscription *
-          <input
-            type="text"
-            required
-            placeholder="https://..."
-            value={reservationUrl}
-            onChange={(e) => setReservationUrl(e.target.value)}
-          />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Horaires *
-          <input
-            type="text"
-            required
-            placeholder="Lun–Sam, 6h–22h"
-            value={horaires}
-            onChange={(e) => setHoraires(e.target.value)}
-          />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Prix à la séance (si disponible sans abonnement)
-          <input type="text" placeholder="12 €" value={prixSeance} onChange={(e) => setPrixSeance(e.target.value)} />
-        </label>
-      )}
-
-      {extended && (
-        <label>
-          Chaîne ou salle indépendante *
-          <input
-            type="text"
-            required
-            placeholder="Indépendante, Fitness Park, On Air..."
-            value={chaine}
-            onChange={(e) => setChaine(e.target.value)}
-          />
-        </label>
-      )}
-
-      <label>
-        {extended
-          ? "Description ou remarques supplémentaires (équipements, ambiance, tout ce qui peut être intéressant à ajouter)"
-          : "Remarques (équipements, ambiance, ce qui rend la salle intéressante...)"}
-        <textarea rows={4} value={remarques} onChange={(e) => setRemarques(e.target.value)} />
-      </label>
-
-      {extended && (
-        <>
-          <div className="propose-form__checkbox-group">
-            <span className="propose-form__checkbox-group-label">Équipements streetlifting</span>
-            <div className="propose-form__checkbox-grid">
-              {EQUIPEMENTS_STREETLIFTING.map((item) => (
-                <label key={item} className="propose-form__checkbox">
-                  <input
-                    type="checkbox"
-                    checked={equipementsStreetlifting.has(item)}
-                    onChange={() => setEquipementsStreetlifting((s) => toggleInSet(s, item))}
-                  />
-                  {item}
-                </label>
-              ))}
-            </div>
+          <div className="form-row">
+            <label>
+              Ville *
+              <input type="text" required placeholder="ex. Marseille" value={ville} onChange={(e) => setVille(e.target.value)} />
+            </label>
+            <label>
+              Adresse{extended ? " *" : ""}
+              <input
+                type="text"
+                required={extended}
+                placeholder="Numéro, rue, code postal"
+                value={adresse}
+                onChange={(e) => setAdresse(e.target.value)}
+              />
+            </label>
           </div>
 
-          <div className="propose-form__checkbox-group">
-            <span className="propose-form__checkbox-group-label">Équipements force</span>
-            <div className="propose-form__checkbox-grid">
-              {EQUIPEMENTS_FORCE.map((item) => (
-                <label key={item} className="propose-form__checkbox">
-                  <input
-                    type="checkbox"
-                    checked={equipementsForce.has(item)}
-                    onChange={() => setEquipementsForce((s) => toggleInSet(s, item))}
-                  />
-                  {item}
-                </label>
-              ))}
+          {extended && (
+            <div className="form-row">
+              <label>
+                Code postal *
+                <input type="text" required value={codePostal} onChange={(e) => setCodePostal(e.target.value)} />
+              </label>
+              <label>
+                Chaîne ou salle indépendante *
+                <input
+                  type="text"
+                  required
+                  placeholder="Indépendante, Fitness Park, On Air..."
+                  value={chaine}
+                  onChange={(e) => setChaine(e.target.value)}
+                />
+              </label>
             </div>
+          )}
+
+          <label>
+            Lien Google Maps
+            <input
+              type="text"
+              placeholder="https://maps.google.com/…"
+              value={googleMapsUrl}
+              onChange={(e) => setGoogleMapsUrl(e.target.value)}
+            />
+          </label>
+        </FormBlock>
+
+        <FormBlock number={2} title="Liens">
+          {extended && (
+            <div className="form-row">
+              <label>
+                Téléphone *
+                <input type="tel" required value={telephone} onChange={(e) => setTelephone(e.target.value)} />
+              </label>
+              <label>
+                Email de contact *
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              </label>
+            </div>
+          )}
+
+          <div className="form-row">
+            <label>
+              Instagram{extended ? " *" : ""}
+              <input
+                type="text"
+                required={extended}
+                placeholder="@nomducompte"
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+              />
+            </label>
+            <label>
+              Site web{extended ? " *" : ""}
+              <input
+                type="text"
+                required={extended}
+                placeholder="https://..."
+                value={siteWeb}
+                onChange={(e) => setSiteWeb(e.target.value)}
+              />
+            </label>
           </div>
 
-          <div className="propose-form__checkbox-group">
-            <span className="propose-form__checkbox-group-label">Autres informations</span>
-            <div className="propose-form__checkbox-grid">
-              <label className="propose-form__checkbox">
-                <input
-                  type="checkbox"
-                  checked={magnesieAutorisee}
-                  onChange={(e) => setMagnesieAutorisee(e.target.checked)}
-                />
-                Magnésie autorisée
+          {extended && (
+            <label>
+              Lien de réservation / inscription *
+              <input
+                type="text"
+                required
+                placeholder="https://..."
+                value={reservationUrl}
+                onChange={(e) => setReservationUrl(e.target.value)}
+              />
+            </label>
+          )}
+        </FormBlock>
+
+        <FormBlock number={3} title="Équipements disponibles">
+          <div className="option-pill-grid">
+            {EQUIPEMENTS.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className={`option-pill ${equipements.has(item) ? "option-pill--selected" : ""}`}
+                onClick={() => setEquipements((s) => toggleInSet(s, item))}
+                aria-pressed={equipements.has(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          {extended && (
+            <>
+              <div className="form-row">
+                <label>
+                  Horaires *
+                  <input
+                    type="text"
+                    required
+                    placeholder="Lun–Sam, 6h–22h"
+                    value={horaires}
+                    onChange={(e) => setHoraires(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Prix à la séance (si disponible sans abonnement)
+                  <input type="text" placeholder="12 €" value={prixSeance} onChange={(e) => setPrixSeance(e.target.value)} />
+                </label>
+              </div>
+
+              <div className="option-pill-grid">
+                <button
+                  type="button"
+                  className={`option-pill ${magnesieAutorisee ? "option-pill--selected" : ""}`}
+                  onClick={() => setMagnesieAutorisee((v) => !v)}
+                  aria-pressed={magnesieAutorisee}
+                >
+                  Magnésie autorisée
+                </button>
+                <button
+                  type="button"
+                  className={`option-pill ${filmageAutorise ? "option-pill--selected" : ""}`}
+                  onClick={() => setFilmageAutorise((v) => !v)}
+                  aria-pressed={filmageAutorise}
+                >
+                  Filmage autorisé
+                </button>
+                <button
+                  type="button"
+                  className={`option-pill ${materielCompetition ? "option-pill--selected" : ""}`}
+                  onClick={() => setMaterielCompetition((v) => !v)}
+                  aria-pressed={materielCompetition}
+                >
+                  Matériel de compétition
+                </button>
+              </div>
+
+              <label>
+                Autre matériel utile
+                <input type="text" value={equipementsAutres} onChange={(e) => setEquipementsAutres(e.target.value)} />
               </label>
-              <label className="propose-form__checkbox">
-                <input
-                  type="checkbox"
-                  checked={filmageAutorise}
-                  onChange={(e) => setFilmageAutorise(e.target.checked)}
-                />
-                Possibilité de filmer ses entraînements
-              </label>
-              <label className="propose-form__checkbox">
-                <input
-                  type="checkbox"
-                  checked={materielCompetition}
-                  onChange={(e) => setMaterielCompetition(e.target.checked)}
-                />
-                Matériel de compétition
-              </label>
-            </div>
+            </>
+          )}
+        </FormBlock>
+
+        <FormBlock number={4} title="Photos et remarques">
+          {extended && (
+            <p className="propose-form__photos-consent">
+              En envoyant des photos, vous confirmez disposer des droits nécessaires pour les partager ou représenter
+              la salle concernée.
+            </p>
+          )}
+          <span className="propose-form__photos-label">
+            Photos ({photos.length}/{MAX_PHOTOS})
+          </span>
+          <div className="propose-form__photos-grid">
+            <label className="propose-form__photo-add">
+              <span className="propose-form__photo-add-plus" aria-hidden="true">
+                +
+              </span>
+              Photo
+              <input type="file" accept="image/*" multiple hidden onChange={handleAddPhotos} disabled={photos.length >= MAX_PHOTOS} />
+            </label>
+            {photos.map((photo) => (
+              <div key={photo.id} className="propose-form__photo">
+                <img src={photo.previewUrl} alt="" />
+                <button
+                  type="button"
+                  className="propose-form__photo-remove"
+                  onClick={() => removePhoto(photo.id)}
+                  aria-label="Retirer cette photo"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
           </div>
 
           <label>
-            Autre matériel utile
-            <input
-              type="text"
-              value={equipementsAutres}
-              onChange={(e) => setEquipementsAutres(e.target.value)}
-            />
+            {extended
+              ? "Description ou remarques supplémentaires (équipements, ambiance, tout ce qui peut être intéressant à ajouter)"
+              : "Remarques (équipements, ambiance, ce qui rend la salle intéressante...)"}
+            <textarea rows={4} value={remarques} onChange={(e) => setRemarques(e.target.value)} />
           </label>
-        </>
-      )}
 
-      <div className="propose-form__photos">
-        {extended && (
-          <p className="propose-form__photos-consent">
-            En envoyant des photos, vous confirmez disposer des droits nécessaires pour les partager ou représenter
-            la salle concernée.
-          </p>
-        )}
-        <span className="propose-form__photos-label">
-          Photos ({photos.length}/{MAX_PHOTOS})
-        </span>
-        <div className="propose-form__photos-grid">
-          {photos.map((photo) => (
-            <div key={photo.id} className="propose-form__photo">
-              <img src={photo.previewUrl} alt="" />
-              <button
-                type="button"
-                className="propose-form__photo-remove"
-                onClick={() => removePhoto(photo.id)}
-                aria-label="Retirer cette photo"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-          {photos.length < MAX_PHOTOS && (
-            <label className="propose-form__photo-add">
-              + Ajouter des photos
-              <input type="file" accept="image/*" multiple hidden onChange={handleAddPhotos} />
+          {!extended && (
+            <label>
+              Email (facultatif, si on a besoin de préciser)
+              <input type="email" placeholder="toi@exemple.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </label>
           )}
-        </div>
-      </div>
+        </FormBlock>
 
-      {error && <p className="propose-form__error">{error}</p>}
+        {error && <p className="propose-form__error">{error}</p>}
 
-      <button type="submit" className="btn btn--primary btn--full" disabled={submitting}>
-        {submitting ? "Envoi..." : "Envoyer la proposition"}
-      </button>
+        <button type="submit" className="btn btn--primary btn--full" disabled={submitting}>
+          {submitting ? "Envoi..." : "Envoyer la proposition"}
+        </button>
+        <p className="propose-form__submit-hint">Cette salle sera vérifiée avant d'apparaître sur la carte.</p>
       </form>
     </>
   );

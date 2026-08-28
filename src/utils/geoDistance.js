@@ -15,9 +15,11 @@ export function distanceKm(a, b) {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
 
-// "à 450 m" en dessous d'1 km, "à 2,4 km" au-dessus — format court adapté à
-// une fiche salle plutôt qu'un calcul d'itinéraire précis.
+// Distance formatée sans préfixe ("450 m", "1,2 km", "28 km", "160 km") —
+// mètres sous 1 km, une décimale entre 1 et 10 km, entier au-delà : au-delà
+// de 10 km la décimale n'apporte plus d'information utile.
 export function formatDistance(km) {
-  if (km < 1) return `à ${Math.round(km * 1000)} m`;
-  return `à ${km.toFixed(1).replace(".", ",")} km`;
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1).replace(".", ",")} km`;
+  return `${Math.round(km)} km`;
 }

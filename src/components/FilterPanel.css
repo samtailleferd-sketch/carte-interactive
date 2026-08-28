@@ -1,0 +1,114 @@
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filter-search input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.filter-search input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.filter-search input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+.filter-active-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-action-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.filter-action-btn:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.filter-action-btn--full {
+  flex-basis: 100%;
+  background: var(--primary-soft);
+  color: var(--primary-light);
+}
+
+.filter-action-btn--full:hover {
+  background: var(--primary-soft);
+  filter: brightness(1.15);
+}
+
+.filter-error {
+  font-size: 12px;
+  color: var(--danger-light);
+  margin: -6px 0 0;
+}
+
+.filter-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary-light);
+  cursor: pointer;
+  border: none;
+}
+
+.filter-favoris-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.filter-group {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.filter-group__title--static {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.status-list {
+  display: flex;
+  flex-direction: column;
+}

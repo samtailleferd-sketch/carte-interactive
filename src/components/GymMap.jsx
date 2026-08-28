@@ -7,27 +7,54 @@ import ZonesLayer from "./ZonesLayer";
 
 function markerIcon(salle, active) {
   const { primary, secondary, text } = getMarkerColors(salle);
-  const size = active ? 30 : 24;
+  const size = active ? 34 : 28;
   const initials = getMarkerInitials(salle);
   const style =
     `--marker-color:${primary};--marker-border:${secondary};` +
     `--marker-text:${text};--marker-size:${size}px`;
   return L.divIcon({
     className: "gym-marker-icon",
-    html: `<span class="gym-marker" style="${style}">${initials}</span>`,
+    html: `<span class="gym-marker" style="${style}"><span class="gym-marker__label">${initials}</span></span>`,
     iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconAnchor: [size / 2, size],
   });
 }
 
+// Recentre sur la salle sélectionnée (clic marqueur ou carte-résultat) sans
+// changer le niveau de zoom — l'utilisateur voit déjà la zone, inutile de
+// forcer un zoom qui déplacerait le contexte visuel.
 function FlyToSelection({ salle }) {
   const map = useMap();
   useEffect(() => {
     if (salle) {
-      map.flyTo([salle.lat, salle.lng], Math.max(map.getZoom(), 13), { duration: 0.6 });
+      map.flyTo([salle.lat, salle.lng], map.getZoom(), { duration: 0.5 });
     }
   }, [salle, map]);
   return null;
+}
+
+// Boutons de zoom + recentrage custom (remplacent le contrôle Leaflet par
+// défaut, pour matcher le style du design system). Vivent dans l'arbre de
+// MapContainer pour avoir accès à l'instance de carte via useMap().
+function MapControls({ onRecenter }) {
+  const map = useMap();
+  return (
+    <div className="map-controls">
+      <div className="map-controls__zoom">
+        <button type="button" onClick={() => map.zoomIn()} aria-label="Zoomer">
+          +
+        </button>
+        <button type="button" onClick={() => map.zoomOut()} aria-label="Dézoomer">
+          –
+        </button>
+      </div>
+      {onRecenter && (
+        <button type="button" className="map-controls__recenter" onClick={onRecenter} aria-label="Me localiser">
+          <span className="map-controls__recenter-dot" />
+        </button>
+      )}
+    </div>
+  );
 }
 
 // Recentre/zoome automatiquement sur les résultats d'une recherche texte
@@ -117,12 +144,14 @@ function MapResizeObserver() {
 export default function GymMap({
   salles,
   selectedId,
+  hoveredId,
   onSelect,
   showZones,
   initialView,
   onViewChange,
   userLocation,
   searchQuery,
+  onRecenter,
 }) {
   const center = initialView?.center || [44.6, 5.6];
   const zoom = initialView?.zoom || 7;
@@ -130,7 +159,7 @@ export default function GymMap({
   const selectedSalle = salles.find((s) => s.id === selectedId);
 
   return (
-    <MapContainer center={center} zoom={zoom} className="map" scrollWheelZoom>
+    <MapContainer center={center} zoom={zoom} className="map" scrollWheelZoom zoomControl={false}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -141,7 +170,7 @@ export default function GymMap({
         <Marker
           key={salle.id}
           position={[salle.lat, salle.lng]}
-          icon={markerIcon(salle, salle.id === selectedId)}
+          icon={markerIcon(salle, salle.id === selectedId || salle.id === hoveredId)}
           alt={salle.nom}
           title={salle.nom}
           eventHandlers={{ click: () => onSelect(salle.id) }}
@@ -153,6 +182,7 @@ export default function GymMap({
       <ViewTracker onViewChange={onViewChange} />
       <MapResizeObserver />
       <RemoveLeafletPrefix />
+      <MapControls onRecenter={onRecenter} />
     </MapContainer>
   );
 }
