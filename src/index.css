@@ -48,6 +48,10 @@
   --sans: "DM Sans", system-ui, "Segoe UI", Roboto, sans-serif;
   --heading: "Archivo", "DM Sans", system-ui, sans-serif;
 
+  /* navigation globale */
+  --bottom-nav-height: 60px;
+  --rail-width: 72px;
+
   color-scheme: dark;
   font: 16px/1.55 var(--sans);
   color: var(--text);

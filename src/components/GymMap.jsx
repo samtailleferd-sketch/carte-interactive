@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 import { getMarkerInitials } from "../utils/markerInitials";
@@ -36,7 +36,7 @@ function FlyToSelection({ salle }) {
 // Boutons de zoom + recentrage custom (remplacent le contrôle Leaflet par
 // défaut, pour matcher le style du design system). Vivent dans l'arbre de
 // MapContainer pour avoir accès à l'instance de carte via useMap().
-function MapControls({ onRecenter }) {
+function MapControls({ onRecenter, locating, hasLocation }) {
   const map = useMap();
   return (
     <div className="map-controls">
@@ -49,8 +49,29 @@ function MapControls({ onRecenter }) {
         </button>
       </div>
       {onRecenter && (
-        <button type="button" className="map-controls__recenter" onClick={onRecenter} aria-label="Me localiser">
-          <span className="map-controls__recenter-dot" />
+        <button
+          type="button"
+          className={`map-controls__recenter ${hasLocation ? "map-controls__recenter--active" : ""} ${
+            locating ? "map-controls__recenter--locating" : ""
+          }`}
+          onClick={onRecenter}
+          disabled={locating}
+          aria-label="Ma position"
+          title="Ma position"
+        >
+          {locating ? (
+            <span className="map-controls__spinner" aria-hidden="true" />
+          ) : (
+            <svg className="map-controls__recenter-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" fill="currentColor" />
+              <path
+                d="M12 2v3.2M12 18.8V22M22 12h-3.2M5.2 12H2"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
         </button>
       )}
     </div>
@@ -100,7 +121,23 @@ function UserLocationMarker({ userLocation }) {
   }, [userLocation, map]);
 
   if (!userLocation) return null;
-  return <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} interactive={false} />;
+  // Plafonné pour éviter un cercle géant quand la précision est faible
+  // (géoloc par IP sur desktop, parfois plusieurs km) ; pas de cercle du
+  // tout en dessous de 30m, le point bleu suffit déjà à cette échelle.
+  const accuracyRadius = userLocation.accuracy ? Math.min(userLocation.accuracy, 1500) : null;
+  return (
+    <>
+      {accuracyRadius && accuracyRadius > 30 && (
+        <Circle
+          center={[userLocation.lat, userLocation.lng]}
+          radius={accuracyRadius}
+          pathOptions={{ color: "#4d9bff", weight: 1, fillColor: "#4d9bff", fillOpacity: 0.12, opacity: 0.35 }}
+          interactive={false}
+        />
+      )}
+      <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} interactive={false} />
+    </>
+  );
 }
 
 function ViewTracker({ onViewChange }) {
@@ -152,6 +189,7 @@ export default function GymMap({
   userLocation,
   searchQuery,
   onRecenter,
+  locating,
 }) {
   const center = initialView?.center || [44.6, 5.6];
   const zoom = initialView?.zoom || 7;
@@ -182,7 +220,7 @@ export default function GymMap({
       <ViewTracker onViewChange={onViewChange} />
       <MapResizeObserver />
       <RemoveLeafletPrefix />
-      <MapControls onRecenter={onRecenter} />
+      <MapControls onRecenter={onRecenter} locating={locating} hasLocation={!!userLocation} />
     </MapContainer>
   );
 }

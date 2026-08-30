@@ -245,7 +245,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: var(--bottom-nav-height);
     z-index: 12;
     height: 44%;
     background: var(--surface);

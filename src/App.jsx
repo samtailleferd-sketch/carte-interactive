@@ -13,7 +13,9 @@ import "./pages/AdminAlertsPage.css";
 import "./components/AuthModal.css";
 import "./components/Lightbox.css";
 import "./components/ReportModal.css";
+import "./components/PrimaryNav.css";
 import MapPage from "./pages/MapPage";
+import PrimaryNav from "./components/PrimaryNav";
 import { fetchSalles } from "./data/fetchSalles";
 
 // Chargées à la demande (pas dans le bundle initial) : la carte ("/") est la
@@ -22,6 +24,7 @@ import { fetchSalles } from "./data/fetchSalles";
 const SalleDetailPage = lazy(() => import("./pages/SalleDetailPage"));
 const ProposeSallePage = lazy(() => import("./pages/ProposeSallePage"));
 const ReferencerSallePage = lazy(() => import("./pages/ReferencerSallePage"));
+const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const AdminAlertsPage = lazy(() => import("./pages/AdminAlertsPage"));
@@ -42,30 +45,36 @@ function App() {
   }, []);
 
   return (
-    <Suspense fallback={<div className="detail-page detail-page--state"><p>Chargement...</p></div>}>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <MapPage
-              salles={salles}
-              loading={loading}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              mapView={mapView}
-              onMapViewChange={setMapView}
+    <div className="app-shell">
+      <div className="app-shell__content">
+        <Suspense fallback={<div className="detail-page detail-page--state"><p>Chargement...</p></div>}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <MapPage
+                  salles={salles}
+                  loading={loading}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  mapView={mapView}
+                  onMapViewChange={setMapView}
+                />
+              }
             />
-          }
-        />
-        <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
-        <Route path="/proposer" element={<ProposeSallePage />} />
-        <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
-        <Route path="/compte" element={<AccountPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/admin/alertes" element={<AdminAlertsPage />} />
-        <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
-      </Routes>
-    </Suspense>
+            <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
+            <Route path="/proposer" element={<ProposeSallePage />} />
+            <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
+            <Route path="/favoris" element={<FavoritesPage salles={salles} loading={loading} />} />
+            <Route path="/compte" element={<AccountPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/alertes" element={<AdminAlertsPage />} />
+            <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
+          </Routes>
+        </Suspense>
+      </div>
+      <PrimaryNav />
+    </div>
   );
 }
 

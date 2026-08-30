@@ -1,0 +1,77 @@
+/* Barre de navigation globale — barre fixe en bas sur mobile, rail latéral
+   fixe à gauche sur desktop. Un seul composant, comportement responsive via
+   media query (même convention que FilterOverlay). */
+
+.primary-nav {
+  position: fixed;
+  z-index: 25;
+  display: flex;
+  background: var(--surface);
+  box-shadow: var(--sh-float);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid var(--line);
+}
+
+.primary-nav__item {
+  all: unset;
+  cursor: pointer;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-4);
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.primary-nav__item svg {
+  flex-shrink: 0;
+}
+
+.primary-nav__item.active {
+  color: var(--primary);
+}
+
+.primary-nav__item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  border-radius: var(--r-field);
+}
+
+@media (min-width: 681px) {
+  .primary-nav {
+    top: 0;
+    left: 0;
+    right: auto;
+    bottom: 0;
+    width: var(--rail-width);
+    height: auto;
+    padding: 20px 0 calc(12px + env(safe-area-inset-bottom));
+    border-top: none;
+    border-right: 1px solid var(--line);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .primary-nav__item {
+    flex: none;
+    padding: 12px 4px;
+    font-size: 10.5px;
+    border-radius: var(--r-field);
+    margin: 0 6px;
+  }
+
+  .primary-nav__item:not(.active):hover {
+    color: var(--text-2);
+    background: var(--surface-2);
+  }
+}

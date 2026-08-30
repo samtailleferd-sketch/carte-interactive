@@ -44,6 +44,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
   const [showZones, setShowZones] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
   const [locateError, setLocateError] = useState("");
+  const [locating, setLocating] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authError, setAuthError] = useState("");
   const { user } = useAuth();
@@ -67,18 +68,52 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
+  // Ouvre le panneau de filtres quand on arrive via le lien "Filtres" de la
+  // nav globale (/?openFilters=1) — fonctionne aussi bien depuis une autre
+  // page que depuis la carte elle-même (HashRouter ne démonte pas MapPage
+  // en re-naviguant vers la même route). Le paramètre est retiré aussitôt
+  // pour ne pas rouvrir le panneau à un retour arrière.
+  useEffect(() => {
+    if (searchParams.get("openFilters")) {
+      setShowFilterOverlay(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("openFilters");
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Message d'erreur de géolocalisation affiché en toast flottant, masqué
+  // automatiquement pour ne pas rester bloqué à l'écran.
+  useEffect(() => {
+    if (!locateError) return undefined;
+    const timer = setTimeout(() => setLocateError(""), 5000);
+    return () => clearTimeout(timer);
+  }, [locateError]);
+
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
       setLocateError("Géolocalisation non disponible sur cet appareil.");
       return;
     }
     setLocateError("");
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setLocating(false);
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
       },
-      () => {
-        setLocateError("Impossible d'accéder à ta position — vérifie l'autorisation de localisation.");
+      (error) => {
+        setLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocateError("Localisation refusée. Vous pouvez l'activer dans les réglages de votre navigateur.");
+        } else {
+          setLocateError("Impossible de récupérer votre position pour le moment.");
+        }
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -233,7 +268,6 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
                   Autour de moi
                 </button>
               </div>
-              {locateError && <p className="filter-error" style={{ padding: "0 22px 10px" }}>{locateError}</p>}
 
               <div className="results-panel__list">
                 {loading && <p className="results-panel__empty">Chargement des salles…</p>}
@@ -277,7 +311,17 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
             userLocation={userLocation}
             searchQuery={filters.query}
             onRecenter={handleLocateMe}
+            locating={locating}
           />
+
+          {locateError && (
+            <div className="location-toast" role="status">
+              <span>{locateError}</span>
+              <button type="button" onClick={() => setLocateError("")} aria-label="Fermer">
+                ×
+              </button>
+            </div>
+          )}
 
           {showZones && !selectedSalle && <ZonesLegend />}
 

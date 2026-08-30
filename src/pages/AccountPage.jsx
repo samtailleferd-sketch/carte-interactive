@@ -8,6 +8,7 @@ import { compressImage } from "../utils/compressImage";
 import { fetchSalles } from "../data/fetchSalles";
 import GymResultCard from "../components/GymResultCard";
 import Toggle from "../components/Toggle";
+import AuthModal from "../components/AuthModal";
 import {
   isPushSupported,
   isRunningAsInstalledApp,
@@ -51,6 +52,7 @@ export default function AccountPage() {
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [pushError, setPushError] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     fetchSalles().then(setSalles);
@@ -180,10 +182,15 @@ export default function AccountPage() {
         {loading && <p className="account-page__hint">Chargement...</p>}
 
         {!loading && !user && (
-          <p className="account-page__hint">
-            Tu n'es pas connecté. Retourne à la carte et clique sur "Se connecter" pour accéder à ton compte.
-          </p>
+          <div className="account-page__hint">
+            <p>Connecte-toi pour enregistrer tes favoris, suivre tes propositions et gérer tes préférences.</p>
+            <button type="button" className="btn btn--primary" onClick={() => setShowAuthModal(true)}>
+              Se connecter
+            </button>
+          </div>
         )}
+
+        {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
         {!loading && user && (
           <>

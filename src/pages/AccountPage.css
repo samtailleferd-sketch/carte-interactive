@@ -19,6 +19,10 @@
   line-height: 1.6;
 }
 
+.account-page__hint p {
+  margin: 0 0 16px;
+}
+
 /* ---------- Cartes ---------- */
 .account-card {
   background: var(--surface);
