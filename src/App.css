@@ -189,14 +189,6 @@
   z-index: 0;
 }
 
-/* Désature/éclaircit uniquement les tuiles OSM (routes secondaires, POI,
-   labels) — jamais les marqueurs, le point bleu ou les zones FNSL, qui
-   vivent dans d'autres panes Leaflet non touchées par ce filtre. Le fond
-   de carte doit rester secondaire, les salles restent l'élément principal. */
-.leaflet-tile-pane {
-  filter: grayscale(0.5) brightness(1.15) contrast(0.85) saturate(0.6);
-}
-
 .map-controls {
   position: absolute;
   top: 18px;
