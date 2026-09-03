@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites";
+import { useVisitedSalles } from "../hooks/useVisitedSalles";
 import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
 import { compressImage } from "../utils/compressImage";
@@ -42,6 +43,7 @@ function memberSince(isoDate) {
 export default function AccountPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const { favorites, toggleFavorite } = useFavorites();
+  const { visited, toggleVisited } = useVisitedSalles(user?.id);
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -99,6 +101,7 @@ export default function AccountPage() {
 
   const current = form || profile || {};
   const favoriteSalles = salles.filter((s) => favorites.has(s.id));
+  const visitedSalles = salles.filter((s) => visited.has(s.id));
 
   const set = (patch) => {
     setForm({ ...current, ...patch });
@@ -223,6 +226,10 @@ export default function AccountPage() {
                 <div>
                   <div className="account-card--profile__counter-value">{favoriteSalles.length}</div>
                   <div className="account-card--profile__counter-label">Favoris</div>
+                </div>
+                <div>
+                  <div className="account-card--profile__counter-value">{visitedSalles.length}</div>
+                  <div className="account-card--profile__counter-label">Visitées</div>
                 </div>
                 <div>
                   <div className="account-card--profile__counter-value">{propositions.length}</div>
@@ -364,6 +371,34 @@ export default function AccountPage() {
                         className="account-favorite-row__remove"
                       >
                         ♥
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="account-card">
+              <div className="account-card__head">
+                <h2>Salles visitées</h2>
+                <span className="account-card__count">{visitedSalles.length}</span>
+              </div>
+              {visitedSalles.length === 0 ? (
+                <p className="account-page__hint">
+                  Aucune salle visitée pour l'instant. Marque une salle comme visitée depuis sa fiche complète.
+                </p>
+              ) : (
+                <div className="account-page__favorites-list">
+                  {visitedSalles.map((salle) => (
+                    <div className="account-favorite-row" key={salle.id}>
+                      <GymResultCard salle={salle} compact onClick={() => window.location.assign(`#/salles/${salle.slug}`)} />
+                      <button
+                        type="button"
+                        onClick={() => toggleVisited(salle.id)}
+                        aria-label="Retirer des salles visitées"
+                        className="account-favorite-row__remove account-favorite-row__remove--visited"
+                      >
+                        ✓
                       </button>
                     </div>
                   ))}

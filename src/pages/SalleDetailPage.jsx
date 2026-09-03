@@ -4,8 +4,11 @@ import StatusBadge from "../components/StatusBadge";
 import GymImage from "../components/GymImage";
 import Lightbox from "../components/Lightbox";
 import ReportModal from "../components/ReportModal";
+import AuthModal from "../components/AuthModal";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useFavorites } from "../hooks/useFavorites";
+import { useVisitedSalles } from "../hooks/useVisitedSalles";
+import { useAuth } from "../hooks/useAuth";
 import { instagramHandle } from "../utils/instagram";
 
 function isRealLink(url) {
@@ -96,8 +99,11 @@ export default function SalleDetailPage({ salles, loading }) {
   const { slug } = useParams();
   const salle = salles.find((s) => s.slug === slug);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { user } = useAuth();
+  const { isVisited, toggleVisited } = useVisitedSalles(user?.id);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [showReport, setShowReport] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (loading && !salle) {
     return (
@@ -122,6 +128,15 @@ export default function SalleDetailPage({ salles, loading }) {
     salle.google_maps_url || `https://www.google.com/maps/dir/?api=1&destination=${salle.lat},${salle.lng}`;
   const photosOnly = (salle.photos || []).filter((p) => !(p.type === "video" && p.lienExterne));
   const favorite = isFavorite(salle.id);
+  const visited = isVisited(salle.id);
+
+  const handleToggleVisited = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    toggleVisited(salle.id);
+  };
 
   const stats = [
     salle.niveau_pertinence && { label: "Pertinence", value: salle.niveau_pertinence },
@@ -167,15 +182,26 @@ export default function SalleDetailPage({ salles, loading }) {
                 </a>
               )}
             </div>
-            <button
-              type="button"
-              className="detail-favorite-btn"
-              onClick={() => toggleFavorite(salle.id)}
-              aria-pressed={favorite}
-            >
-              <span className="detail-favorite-btn__icon">{favorite ? "❤️" : "🤍"}</span>
-              <span className="detail-favorite-btn__label">Enregistrer</span>
-            </button>
+            <div className="detail-identity__side-actions">
+              <button
+                type="button"
+                className="detail-favorite-btn"
+                onClick={() => toggleFavorite(salle.id)}
+                aria-pressed={favorite}
+              >
+                <span className="detail-favorite-btn__icon">{favorite ? "❤️" : "🤍"}</span>
+                <span className="detail-favorite-btn__label">Enregistrer</span>
+              </button>
+              <button
+                type="button"
+                className={`detail-visited-btn ${visited ? "detail-visited-btn--active" : ""}`}
+                onClick={handleToggleVisited}
+                aria-pressed={visited}
+              >
+                <span className="detail-visited-btn__icon">{visited ? "✅" : "⬜️"}</span>
+                <span className="detail-visited-btn__label">{visited ? "Visitée" : "J'ai visité"}</span>
+              </button>
+            </div>
           </div>
 
           {stats.length > 0 && (
@@ -345,6 +371,7 @@ export default function SalleDetailPage({ salles, loading }) {
       )}
 
       {showReport && <ReportModal salle={salle} onClose={() => setShowReport(false)} />}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
 }

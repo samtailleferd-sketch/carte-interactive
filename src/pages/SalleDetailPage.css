@@ -159,7 +159,14 @@
   color: var(--text-3);
 }
 
-.detail-favorite-btn {
+.detail-identity__side-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.detail-favorite-btn,
+.detail-visited-btn {
   all: unset;
   cursor: pointer;
   display: flex;
@@ -177,16 +184,34 @@
   background: var(--danger-soft);
 }
 
+.detail-visited-btn:hover {
+  background: var(--success-soft);
+}
+
 .detail-favorite-btn__icon {
   font-size: 20px;
   color: var(--danger);
   line-height: 1;
 }
 
-.detail-favorite-btn__label {
+.detail-visited-btn__icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.detail-favorite-btn__label,
+.detail-visited-btn__label {
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
+}
+
+.detail-visited-btn--active {
+  background: var(--success-soft);
+}
+
+.detail-visited-btn--active .detail-visited-btn__label {
+  color: var(--success);
 }
 
 .detail-identity .stat-strip {

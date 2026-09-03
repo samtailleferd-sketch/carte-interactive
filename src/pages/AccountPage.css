@@ -222,6 +222,10 @@
   font-size: 16px;
 }
 
+.account-favorite-row__remove--visited {
+  color: var(--success);
+}
+
 /* ---------- Propositions ---------- */
 .account-propositions-list {
   list-style: none;
