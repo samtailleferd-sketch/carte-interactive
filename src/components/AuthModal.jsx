@@ -30,6 +30,8 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [unconfirmedLogin, setUnconfirmedLogin] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
 
   if (!supabase) return null;
 
@@ -38,19 +40,44 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
     setError("");
     setPassword("");
     setPasswordConfirm("");
+    setUnconfirmedLogin(false);
+    setResendSent(false);
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setUnconfirmedLogin(false);
+    setResendSent(false);
     setSending(true);
     const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
     setSending(false);
     if (loginError) {
-      setError("Email ou mot de passe incorrect.");
+      if (loginError.code === "email_not_confirmed") {
+        setUnconfirmedLogin(true);
+        setError("Ce compte n'est pas encore confirmé — vérifie ta boîte mail (et tes spams).");
+      } else {
+        setError("Email ou mot de passe incorrect.");
+      }
       return;
     }
     onClose();
+  };
+
+  const handleResendConfirmation = async () => {
+    setSending(true);
+    const { error: resendError } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: SITE_URL } });
+    setSending(false);
+    if (resendError) {
+      setError(
+        resendError.code === "over_email_send_rate_limit"
+          ? "Trop de tentatives récentes — réessaie dans quelques minutes."
+          : "Impossible de renvoyer l'email — réessaie."
+      );
+      return;
+    }
+    setResendSent(true);
+    setError("");
   };
 
   const handleSignup = async (e) => {
@@ -194,6 +221,17 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
             </button>
 
             {error && <p className="auth-modal__error">{error}</p>}
+            {unconfirmedLogin && !resendSent && (
+              <button
+                type="button"
+                className="auth-modal__forgot"
+                onClick={handleResendConfirmation}
+                disabled={sending}
+              >
+                Renvoyer l'email de confirmation
+              </button>
+            )}
+            {resendSent && <p className="auth-modal__hint">Email renvoyé — vérifie ta boîte mail.</p>}
             <button type="submit" className="btn btn--primary auth-modal__submit" disabled={sending}>
               {sending ? "Connexion..." : "Se connecter"}
             </button>
