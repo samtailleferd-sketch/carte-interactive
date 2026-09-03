@@ -23,6 +23,33 @@
   margin: 0 0 8px;
 }
 
+.auth-modal__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 18px;
+  background: var(--surface-2);
+  border-radius: var(--r-pill);
+}
+
+.auth-modal__tab {
+  all: unset;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: var(--r-pill);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-3);
+  box-sizing: border-box;
+}
+
+.auth-modal__tab--active {
+  background: var(--primary);
+  color: var(--bg);
+}
+
 .auth-modal__close {
   position: absolute;
   top: 12px;

@@ -141,6 +141,8 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
     onClose();
   };
 
+  const showTabs = mode === MODE_LOGIN || (mode === MODE_SIGNUP && !awaitingConfirmation);
+
   return (
     <div className="auth-modal__backdrop" onClick={onClose}>
       <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
@@ -148,9 +150,27 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
           ×
         </button>
 
+        {showTabs && (
+          <div className="auth-modal__tabs">
+            <button
+              type="button"
+              className={`auth-modal__tab ${mode === MODE_LOGIN ? "auth-modal__tab--active" : ""}`}
+              onClick={() => switchMode(MODE_LOGIN)}
+            >
+              Se connecter
+            </button>
+            <button
+              type="button"
+              className={`auth-modal__tab ${mode === MODE_SIGNUP ? "auth-modal__tab--active" : ""}`}
+              onClick={() => switchMode(MODE_SIGNUP)}
+            >
+              Créer un compte
+            </button>
+          </div>
+        )}
+
         {mode === MODE_LOGIN && (
           <form onSubmit={handleLogin}>
-            <h2>Se connecter</h2>
             <p className="auth-modal__hint">
               Retrouve tes salles favorites, tes propositions et tes préférences.
             </p>
@@ -177,9 +197,6 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
             <button type="submit" className="btn btn--primary auth-modal__submit" disabled={sending}>
               {sending ? "Connexion..." : "Se connecter"}
             </button>
-            <button type="button" className="auth-modal__switch" onClick={() => switchMode(MODE_SIGNUP)}>
-              Pas encore de compte ? <strong>Créer un compte</strong>
-            </button>
             <button type="button" className="auth-modal__skip" onClick={onClose}>
               Continuer sans compte →
             </button>
@@ -188,7 +205,6 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
 
         {mode === MODE_SIGNUP && !awaitingConfirmation && (
           <form onSubmit={handleSignup}>
-            <h2>Rejoins la carte</h2>
             <p className="auth-modal__hint">
               Enregistre tes salles favorites, propose des ajouts, reçois les nouveautés de ta région.
             </p>
@@ -240,9 +256,6 @@ export default function AuthModal({ onClose, initialMode = MODE_LOGIN }) {
             {error && <p className="auth-modal__error">{error}</p>}
             <button type="submit" className="btn btn--primary auth-modal__submit" disabled={sending}>
               {sending ? "Création..." : "Créer mon compte"}
-            </button>
-            <button type="button" className="auth-modal__switch" onClick={() => switchMode(MODE_LOGIN)}>
-              Déjà un compte ? <strong>Se connecter</strong>
             </button>
             <button type="button" className="auth-modal__skip" onClick={onClose}>
               Continuer sans compte →
