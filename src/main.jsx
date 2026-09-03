@@ -32,6 +32,34 @@ if (rawHash.startsWith('error=')) {
   window.location.hash = '#/';
 }
 
+// Filet de sécurité contre un onglet resté ouvert pendant un déploiement :
+// cliquer sur une page chargée à la demande (ex. /compte) peut alors tenter
+// de récupérer un fichier qui n'existe plus (remplacé par le déploiement
+// suivant) -> écran vide, rien ne charge. Vite déclenche "vite:preloadError"
+// dans ce cas précis, mais l'échec peut aussi remonter comme une promesse
+// rejetée non interceptée (`Failed to fetch dynamically imported module` /
+// variantes Firefox/Safari) sans passer par les error boundaries React —
+// on couvre donc les deux, avec un rechargement automatique une seule fois
+// par session pour ne jamais boucler si l'erreur a une autre cause.
+const RELOAD_FLAG_KEY = 'streetmap_chunk_reload';
+function isChunkLoadError(message) {
+  const text = String(message || '');
+  return (
+    /Failed to fetch dynamically imported module/i.test(text) ||
+    /error loading dynamically imported module/i.test(text) ||
+    /Importing a module script failed/i.test(text)
+  );
+}
+function reloadOnceForChunkError() {
+  if (sessionStorage.getItem(RELOAD_FLAG_KEY)) return;
+  sessionStorage.setItem(RELOAD_FLAG_KEY, '1');
+  window.location.reload();
+}
+window.addEventListener('vite:preloadError', reloadOnceForChunkError);
+window.addEventListener('unhandledrejection', (event) => {
+  if (isChunkLoadError(event.reason?.message)) reloadOnceForChunkError();
+});
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HashRouter>
