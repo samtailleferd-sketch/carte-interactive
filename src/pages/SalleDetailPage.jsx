@@ -8,6 +8,7 @@ import AuthModal from "../components/AuthModal";
 import { resolveAssetUrl } from "../utils/assetUrl";
 import { useFavorites } from "../hooks/useFavorites";
 import { useVisitedSalles } from "../hooks/useVisitedSalles";
+import { useGeoCheckIn } from "../hooks/useGeoCheckIn";
 import { useAuth } from "../hooks/useAuth";
 import { instagramHandle } from "../utils/instagram";
 
@@ -100,7 +101,9 @@ export default function SalleDetailPage({ salles, loading }) {
   const salle = salles.find((s) => s.slug === slug);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { user } = useAuth();
-  const { isVisited, toggleVisited } = useVisitedSalles(user?.id);
+  const { isVisited, checkIn, removeVisited, loading: visitedLoading } = useVisitedSalles(user?.id);
+  const { checkingIn, message: checkInMessage, setMessage: setCheckInMessage, attemptCheckIn } =
+    useGeoCheckIn(checkIn);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [showReport, setShowReport] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -130,12 +133,20 @@ export default function SalleDetailPage({ salles, loading }) {
   const favorite = isFavorite(salle.id);
   const visited = isVisited(salle.id);
 
+  // Retirer une visite est libre (se rétracter n'a pas besoin de preuve),
+  // mais en ajouter une exige d'être physiquement à proximité de la salle —
+  // sinon n'importe qui pourrait cocher "visité" depuis chez lui.
   const handleToggleVisited = () => {
+    setCheckInMessage("");
     if (!user) {
       setShowAuthModal(true);
       return;
     }
-    toggleVisited(salle.id);
+    if (visited) {
+      removeVisited(salle.id);
+      return;
+    }
+    attemptCheckIn(salle);
   };
 
   const stats = [
@@ -196,13 +207,18 @@ export default function SalleDetailPage({ salles, loading }) {
                 type="button"
                 className={`detail-visited-btn ${visited ? "detail-visited-btn--active" : ""}`}
                 onClick={handleToggleVisited}
+                disabled={checkingIn || visitedLoading}
                 aria-pressed={visited}
               >
                 <span className="detail-visited-btn__icon">{visited ? "✅" : "⬜️"}</span>
-                <span className="detail-visited-btn__label">{visited ? "Visitée" : "J'ai visité"}</span>
+                <span className="detail-visited-btn__label">
+                  {checkingIn ? "Localisation…" : visited ? "Visitée" : "J'ai visité"}
+                </span>
               </button>
             </div>
           </div>
+
+          {checkInMessage && <p className="detail-checkin-message">{checkInMessage}</p>}
 
           {stats.length > 0 && (
             <div className="stat-strip">

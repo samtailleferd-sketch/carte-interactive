@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites";
 import { useVisitedSalles } from "../hooks/useVisitedSalles";
+import VisitCheckInPanel from "../components/VisitCheckInPanel";
 import { supabase } from "../lib/supabaseClient";
 import { fnslZones } from "../data/fnslZones";
 import { compressImage } from "../utils/compressImage";
@@ -43,7 +44,8 @@ function memberSince(isoDate) {
 export default function AccountPage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const { favorites, toggleFavorite } = useFavorites();
-  const { visited, toggleVisited } = useVisitedSalles(user?.id);
+  const { visited, checkIn, removeVisited } = useVisitedSalles(user?.id);
+  const [showCheckIn, setShowCheckIn] = useState(false);
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -383,9 +385,28 @@ export default function AccountPage() {
                 <h2>Salles visitées</h2>
                 <span className="account-card__count">{visitedSalles.length}</span>
               </div>
+
+              <button
+                type="button"
+                className={`pill-trigger account-page__checkin-toggle ${showCheckIn ? "pill-trigger--active" : ""}`}
+                onClick={() => setShowCheckIn((v) => !v)}
+              >
+                {showCheckIn ? "Annuler" : "+ Ajouter une salle visitée"}
+              </button>
+
+              {showCheckIn && (
+                <VisitCheckInPanel
+                  salles={salles}
+                  visited={visited}
+                  checkIn={checkIn}
+                  onClose={() => setShowCheckIn(false)}
+                />
+              )}
+
               {visitedSalles.length === 0 ? (
                 <p className="account-page__hint">
-                  Aucune salle visitée pour l'instant. Marque une salle comme visitée depuis sa fiche complète.
+                  Aucune salle visitée pour l'instant. Marque une salle comme visitée depuis sa fiche complète, ou
+                  ajoute-la ci-dessus.
                 </p>
               ) : (
                 <div className="account-page__favorites-list">
@@ -394,7 +415,7 @@ export default function AccountPage() {
                       <GymResultCard salle={salle} compact onClick={() => window.location.assign(`#/salles/${salle.slug}`)} />
                       <button
                         type="button"
-                        onClick={() => toggleVisited(salle.id)}
+                        onClick={() => removeVisited(salle.id)}
                         aria-label="Retirer des salles visitées"
                         className="account-favorite-row__remove account-favorite-row__remove--visited"
                       >

@@ -14,6 +14,7 @@ import "./components/AuthModal.css";
 import "./components/Lightbox.css";
 import "./components/ReportModal.css";
 import "./components/PrimaryNav.css";
+import "./components/VisitCheckInPanel.css";
 import MapPage from "./pages/MapPage";
 import PrimaryNav from "./components/PrimaryNav";
 import { fetchSalles } from "./data/fetchSalles";

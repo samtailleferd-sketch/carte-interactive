@@ -1,6 +1,6 @@
 import { statusVariant } from "../statusStyle";
 
-function normalize(value) {
+export function normalize(value) {
   return (value || "")
     .toString()
     .normalize("NFD")

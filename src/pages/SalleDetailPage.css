@@ -214,6 +214,17 @@
   color: var(--success);
 }
 
+.detail-visited-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.detail-checkin-message {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
 .detail-identity .stat-strip {
   margin-top: 18px;
 }

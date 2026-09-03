@@ -47,7 +47,7 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
   const [locating, setLocating] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authError, setAuthError] = useState("");
-  const { user } = useAuth();
+  const { user, passwordRecovery, clearPasswordRecovery } = useAuth();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
   // Un lien de connexion Supabase expiré/invalide redirige ici avec un
@@ -60,6 +60,14 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
       sessionStorage.removeItem("authError");
     }
   }, []);
+
+  // Utilisateur arrivé via un lien "mot de passe oublié" — ouvre directement
+  // le modal en mode "nouveau mot de passe" plutôt que la connexion normale.
+  useEffect(() => {
+    if (passwordRecovery) {
+      setShowAuthModal(true);
+    }
+  }, [passwordRecovery]);
 
   // Reflète les filtres actifs dans l'URL (sans polluer l'historique) pour
   // qu'un lien copié restaure exactement la même vue filtrée.
@@ -234,7 +242,15 @@ export default function MapPage({ salles, loading, selectedId, onSelect, mapView
         </div>
       </header>
 
-      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      {showAuthModal && (
+        <AuthModal
+          initialMode={passwordRecovery ? "reset-password" : "login"}
+          onClose={() => {
+            setShowAuthModal(false);
+            clearPasswordRecovery();
+          }}
+        />
+      )}
 
       <main className="app__body">
         <aside className={`results-panel ${resultsPanelCollapsed ? "results-panel--collapsed" : ""}`}>

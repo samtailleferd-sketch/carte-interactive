@@ -26,6 +26,7 @@ export function useAuth() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(!!supabase);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   const loadProfile = useCallback(async (userId) => {
     if (!supabase || !userId) {
@@ -49,6 +50,12 @@ export function useAuth() {
       if (event === "SIGNED_IN") {
         await applyPendingConsent(session?.user?.id);
       }
+      // Émis par Supabase quand l'utilisateur arrive via un lien "mot de
+      // passe oublié" — MapPage.jsx ouvre alors AuthModal directement en
+      // mode "nouveau mot de passe" plutôt que la connexion normale.
+      if (event === "PASSWORD_RECOVERY") {
+        setPasswordRecovery(true);
+      }
       loadProfile(session?.user?.id);
     });
 
@@ -57,5 +64,7 @@ export function useAuth() {
 
   const refreshProfile = useCallback(() => loadProfile(user?.id), [loadProfile, user]);
 
-  return { user, profile, loading, refreshProfile };
+  const clearPasswordRecovery = useCallback(() => setPasswordRecovery(false), []);
+
+  return { user, profile, loading, refreshProfile, passwordRecovery, clearPasswordRecovery };
 }
