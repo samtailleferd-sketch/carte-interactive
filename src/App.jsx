@@ -17,6 +17,7 @@ import "./components/PrimaryNav.css";
 import "./components/VisitCheckInPanel.css";
 import MapPage from "./pages/MapPage";
 import PrimaryNav from "./components/PrimaryNav";
+import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 import { fetchSalles } from "./data/fetchSalles";
 
 // Chargées à la demande (pas dans le bundle initial) : la carte ("/") est la
@@ -48,31 +49,33 @@ function App() {
   return (
     <div className="app-shell">
       <div className="app-shell__content">
-        <Suspense fallback={<div className="detail-page detail-page--state"><p>Chargement...</p></div>}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <MapPage
-                  salles={salles}
-                  loading={loading}
-                  selectedId={selectedId}
-                  onSelect={setSelectedId}
-                  mapView={mapView}
-                  onMapViewChange={setMapView}
-                />
-              }
-            />
-            <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
-            <Route path="/proposer" element={<ProposeSallePage />} />
-            <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
-            <Route path="/favoris" element={<FavoritesPage salles={salles} loading={loading} />} />
-            <Route path="/compte" element={<AccountPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/alertes" element={<AdminAlertsPage />} />
-            <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
-          </Routes>
-        </Suspense>
+        <ChunkErrorBoundary>
+          <Suspense fallback={<div className="detail-page detail-page--state"><p>Chargement...</p></div>}>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <MapPage
+                    salles={salles}
+                    loading={loading}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                    mapView={mapView}
+                    onMapViewChange={setMapView}
+                  />
+                }
+              />
+              <Route path="/salles/:slug" element={<SalleDetailPage salles={salles} loading={loading} />} />
+              <Route path="/proposer" element={<ProposeSallePage />} />
+              <Route path="/referencer-votre-salle" element={<ReferencerSallePage />} />
+              <Route path="/favoris" element={<FavoritesPage salles={salles} loading={loading} />} />
+              <Route path="/compte" element={<AccountPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/alertes" element={<AdminAlertsPage />} />
+              <Route path="/admin/propositions" element={<AdminPropositionsPage />} />
+            </Routes>
+          </Suspense>
+        </ChunkErrorBoundary>
       </div>
       <PrimaryNav />
     </div>
