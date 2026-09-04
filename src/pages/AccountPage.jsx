@@ -169,7 +169,12 @@ export default function AccountPage() {
   const handleDeleteAccount = async () => {
     setDeleteError("");
     setDeleting(true);
-    const { data, error } = await supabase.functions.invoke("delete-account");
+    // Le code de la fonction s'appelle "delete-account" (voir
+    // supabase/functions/delete-account/index.ts), mais elle a été déployée
+    // côté Supabase sous le nom technique "rapid-processor" (nom par défaut
+    // de l'éditeur en ligne, jamais renommé côté route) — on appelle donc
+    // ce nom-là, qui est celui qui compte réellement pour l'URL de la fonction.
+    const { data, error } = await supabase.functions.invoke("rapid-processor");
     if (error || data?.error) {
       setDeleting(false);
       setDeleteError("Impossible de supprimer le compte pour le moment — réessaie plus tard.");
