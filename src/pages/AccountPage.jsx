@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites";
 import { useVisitedSalles } from "../hooks/useVisitedSalles";
@@ -19,7 +19,6 @@ import {
   unsubscribeFromPush,
 } from "../utils/pushNotifications";
 
-const DELETE_EMAIL = "tailleferdsam@gmail.com";
 const AVATAR_BUCKET = "avatars";
 
 const PROPOSITION_STATUT_LABEL = {
@@ -27,12 +26,6 @@ const PROPOSITION_STATUT_LABEL = {
   publiee: "Publiée",
   rejetee: "Non retenue",
 };
-
-function deleteAccountMailto(email) {
-  const subject = "Demande de suppression de compte Street Map";
-  const body = `Bonjour,\n\nJe souhaite supprimer mon compte Street Map associé à cette adresse : ${email}\n\n`;
-  return `mailto:${DELETE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
 
 function memberSince(isoDate) {
   if (!isoDate) return null;
@@ -42,6 +35,7 @@ function memberSince(isoDate) {
 }
 
 export default function AccountPage() {
+  const navigate = useNavigate();
   const { user, profile, loading, refreshProfile } = useAuth();
   const { favorites, toggleFavorite } = useFavorites();
   const { visited, checkIn, removeVisited } = useVisitedSalles(user?.id);
@@ -57,6 +51,9 @@ export default function AccountPage() {
   const [pushBusy, setPushBusy] = useState(false);
   const [pushError, setPushError] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     fetchSalles().then(setSalles);
@@ -167,6 +164,19 @@ export default function AccountPage() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError("");
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("delete-account");
+    if (error || data?.error) {
+      setDeleting(false);
+      setDeleteError("Impossible de supprimer le compte pour le moment — réessaie plus tard.");
+      return;
+    }
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
   const pushToggleVisible = isPushSupported() && (!isIOS() || isRunningAsInstalledApp());
@@ -454,9 +464,44 @@ export default function AccountPage() {
               )}
             </div>
 
-            <a href={deleteAccountMailto(user.email)} className="account-page__delete-link">
-              Demander la suppression de mon compte
-            </a>
+            {!confirmingDelete ? (
+              <button
+                type="button"
+                className="account-page__delete-link"
+                onClick={() => setConfirmingDelete(true)}
+              >
+                Supprimer mon compte
+              </button>
+            ) : (
+              <div className="account-page__delete-confirm">
+                <p>
+                  Cette action est définitive : ton profil, tes salles visitées et tes préférences seront
+                  supprimés. Tes propositions de salles déjà envoyées resteront visibles, sans être liées à ton
+                  compte.
+                </p>
+                {deleteError && <p className="auth-modal__error">{deleteError}</p>}
+                <div className="account-page__delete-confirm-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmingDelete(false);
+                      setDeleteError("");
+                    }}
+                    disabled={deleting}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    className="account-page__delete-confirm-submit"
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                  >
+                    {deleting ? "Suppression..." : "Oui, supprimer définitivement"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <button type="button" className="account-page__signout" onClick={handleSignOut}>
               Se déconnecter

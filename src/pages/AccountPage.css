@@ -190,10 +190,56 @@
 }
 
 .account-page__delete-link {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  width: 100%;
   text-align: center;
   font-size: 12px;
   color: var(--text-4);
   text-decoration: underline;
+}
+
+.account-page__delete-confirm {
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: var(--danger-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-page__delete-confirm p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.account-page__delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.account-page__delete-confirm-actions button {
+  all: unset;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: var(--r-field);
+  font-size: 13px;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.account-page__delete-confirm-actions button:first-child {
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+
+.account-page__delete-confirm-submit {
+  color: #fff;
+  background: var(--danger);
 }
 
 .account-page__checkin-toggle {
